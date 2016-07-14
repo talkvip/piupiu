@@ -16,17 +16,18 @@
   <script>
 
   var button = document.querySelector('#message');
+  
+  
   button.addEventListener('click', onButton);
+  
+  var chirp = new Chirp();
 
   function onButton() {
-    var audioContext = new window.AudioContext || new webkitAudioContext();
-    setTimeout(function() {
-      var chirp = new Chirp();
-      chirp.create({longcode: 'abcd'});
-      chirp.play();
-    }, 1000);
+    chirp.create({longcode: 'hjl13qlftgjklnet0ac1'});
+    chirp.play();
   }
 
+  /*
   // On some other machine:
   sserver = new SonicServer({alphabet: ALPHABET});
   sserver.on('message', function(message) {
@@ -34,6 +35,7 @@
   console.log(message);
   });
   sserver.start();
+  */
   </script>
 </body>
 </html>

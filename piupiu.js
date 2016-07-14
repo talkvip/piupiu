@@ -26,6 +26,7 @@ function RS(messageLength, errorCorrectionLength) {
     };
 }
 
+/*
 var alphabet = '0123456789abcdefghijklmnopqrstuv';
 var bin = 'Hel0o!';
 var code = base32hex.encode(bin);
@@ -91,3 +92,4 @@ code = base32hex.encode(s.substring(0, 6)).substring(0, 10) + base32hex.encode(e
 console.log(code);
 b = base32hex.decode(code.substring(0, 10)) + base32hex.decode(code.substring(10));
 console.log(b);
+*/
