@@ -1,9 +1,9 @@
-[submodule "sonicnet.js"]
-	path = sonicnet.js
-	url = https://github.com/borismus/sonicnet.js/
 [submodule "reedsolomon.js"]
 	path = reedsolomon.js
 	url = https://github.com/cho45/reedsolomon.js
 [submodule "requirejs"]
 	path = requirejs
 	url = http://github.com/requirejs/requirejs
+[submodule "meteor-sonicnetjs"]
+	path = meteor-sonicnetjs
+	url = https://github.com/jose-flores/meteor-sonicnetjs
