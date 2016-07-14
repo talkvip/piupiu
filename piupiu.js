@@ -1,5 +1,21 @@
 /* piupiu.js */
 
+function loadScript(url) {
+  var id = 'script-' + new Date().getTime();
+  var script = document.createElement('script');
+  script.setAttribute('id', id);
+  script.setAttribute('type', 'text/javascript');
+  script.setAttribute('src', url);
+  document.body.appendChild(script);
+  return id;
+}
+
+function unloadScript(id) {
+  var el = document.getElementById(id);
+  if(typeof el == 'undefined' || el == null) return;
+  document.body.removeChild(el);
+}
+
 var rs = {
   GenericGF: GenericGF,
   GenericGFPoly: GenericGFPoly,

@@ -1,5 +1,26 @@
 /* chirp.js */
 
+var Chirps = {};
+
+function Chirp_getResponse(data) {
+  if(typeof data != 'object') data = {};
+  if('callback' in data) var fn = window[data.callback];       
+  if('err' in data) {
+    console.log(data.err);
+    if(typeof fn == 'function') fn(data);
+    return;
+  }
+  if(('title' in data) && ('url' in data)) {
+    if('longcode' in data) window.localStorage.setItem('$chirp-' + data.longcode, JSON.stringify(data));
+    var chirp = Chirps[data.url];
+    chirp.data = data;
+    data.obj = chirp;
+    console.log(chirp);
+    console.log(data);
+    if(typeof fn == 'function') fn(data);
+  }
+}
+
 Chirp = function() {
 
   this.data = {};
@@ -55,10 +76,44 @@ Chirp = function() {
   };
 }
 
-Chirp.prototype.create = function(data) {
-  this.data = data;
+Chirp.prototype.create = function(data, callback) {
+  if(typeof data != 'object') data = {};
+  console.log(data);
+  var fn = window[callback];   
+  if(('title' in data) && ('url' in data)) {
+    if(data.url in Chirps) {
+      if('data' in Chirps[data.url]) {
+        if('longcode' in Chirps[data.url].data) {
+          if(typeof fn == 'function') fn(Chirps[data.url].data);
+          return;
+        }
+      }
+    }
+    this.data = data;
+    Chirps[data.url] = this;
+    data.callback = callback;
+    var jsonp = loadScript('http://piupiu.ml/chirp.php?data=' + encodeURIComponent(JSON.stringify(data)) + '&callback=Chirp_getResponse');
+    setTimeout(function() { unloadScript(jsonp); }, 5000);
+  } else {
+    if(typeof fn == 'function') fn({err: 'Missing required argument title/url'});
+  }
 }
 
 Chirp.prototype.play = function() {
-  this.socket.send(this.data.longcode);
+  this.socket.send('hj' + this.data.longcode);
 }
+
+for(var i in window.localStorage) {
+  if(i.substring(0, 7) == '$chirp-') {
+    var obj = eval('(' + window.localStorage.getItem(i) + ')');
+    if(typeof obj == 'object') {
+      if('url' in obj) {
+        Chirps[obj.url] = new Chirp();
+        Chirps[obj.url].data = obj;
+        Chirps[obj.url].data.obj = Chirps[obj.url];
+      }
+    }
+  }
+} 
+
+console.log(Chirps);

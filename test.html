@@ -7,10 +7,12 @@
   <script type="text/javascript" src="meteor-sonicnetjs/sonic-coder.js"></script>
   <script type="text/javascript" src="meteor-sonicnetjs/sonic-server.js"></script>
   <script type="text/javascript" src="meteor-sonicnetjs/sonic-socket.js"></script>
+  <script type="text/javascript" src="json2.js"></script>
   <script type="text/javascript" src="chirp.js"></script>
   <script type="text/javascript" src="piupiu.js"></script>
 </head>
 <body>
+  URL: <input type="url" id="url" value="http://www.google.be" />
   <button id="message">CHIRP TEST</button>
 
   <script>
@@ -22,9 +24,15 @@
   
   var chirp = new Chirp();
 
+  function newChirp(data) {
+    console.log(data);
+    data.obj.play();
+  }
+
   function onButton() {
-    chirp.create({longcode: 'hjl13qlftgjklnet0ac1'});
-    chirp.play();
+    var a = document.createElement('a');
+    a.href = document.querySelector('#url').value;
+    chirp.create({title: a.hostname, url: document.querySelector('#url').value}, 'newChirp');
   }
 
   /*
