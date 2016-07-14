@@ -29,6 +29,30 @@ Chirp = function() {
   });  
   
   this.socket.coder = this.coder;
+    
+  this.socket.scheduleToneAt = function(freq, startTime, duration) {
+    var gainNode = audioContext.createGain();
+
+    // Gain => Merger
+    gainNode.gain.value = 0;
+
+    gainNode.gain.setValueAtTime(0.0, startTime);
+    gainNode.gain.linearRampToValueAtTime(0.15, startTime + this.rampDuration);
+    gainNode.gain.setValueAtTime(0.15, startTime + duration - this.rampDuration);
+    gainNode.gain.linearRampToValueAtTime(0.0, startTime + duration);
+    
+    gainNode.connect(audioContext.destination);
+
+    var osc = audioContext.createOscillator();
+    osc.frequency.value = freq;
+    osc.connect(gainNode);
+
+    if (this.onsend && typeof this.onsend == "function")
+      osc.onended = this.onsend;
+
+    osc.start(startTime);
+    osc.stop(startTime+duration);
+  };
 }
 
 Chirp.prototype.create = function(data) {
