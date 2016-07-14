@@ -14,10 +14,10 @@ Chirp = function() {
     var fundamental = this.freqMin;  
     var noteratio = 1.0594630943591;
     var index = this.alphabet.indexOf(char) - 1; // ignore startChar
-    if(index == -1) { 
+    if(index == -1 && char != this.startChar) { 
       // If this character isn't in the alphabet, error out.
       console.error(char, 'is an invalid character.');
-      index = 0;
+      return 0;
     }  
 	  return fundamental * Math.pow(noteratio, index); 
 	};
