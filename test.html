@@ -24,7 +24,11 @@
 
   function newChirp(data) {
     console.log(data);
-    data.obj.play();
+    if('error' in data) {
+      alert(data.error.msg + '(Invalid URL?)');
+    } else {
+      data.obj.play();
+    }
   }
 
   function onButton() {

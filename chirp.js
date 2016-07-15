@@ -5,8 +5,8 @@ var Chirps = {};
 function Chirp_getResponse(data) {
   if(typeof data != 'object') data = {};
   if('callback' in data) var fn = window[data.callback];       
-  if('err' in data) {
-    console.log(data.err);
+  if('error' in data) {
+    console.log(data.error.msg);
     if(typeof fn == 'function') fn(data);
     return;
   }
