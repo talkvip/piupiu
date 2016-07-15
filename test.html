@@ -30,7 +30,7 @@
   function onButton() {
     var a = document.createElement('a');
     a.href = document.querySelector('#url').value;
-    chirp.create({mimetype: 'text/x-url', title: a.hostname, url: document.querySelector('#url').value}, 'newChirp');
+    chirp.create({title: a.hostname, url: document.querySelector('#url').value}, 'newChirp');
   }
 
   /*
