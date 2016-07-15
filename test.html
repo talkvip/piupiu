@@ -18,10 +18,8 @@
   <script>
 
   var button = document.querySelector('#message');
-  
-  
   button.addEventListener('click', onButton);
-  
+ 
   var chirp = new Chirp();
 
   function newChirp(data) {
@@ -32,7 +30,7 @@
   function onButton() {
     var a = document.createElement('a');
     a.href = document.querySelector('#url').value;
-    chirp.create({title: a.hostname, url: document.querySelector('#url').value}, 'newChirp');
+    chirp.create({mimetype: 'text/x-url', title: a.hostname, url: document.querySelector('#url').value}, 'newChirp');
   }
 
   /*

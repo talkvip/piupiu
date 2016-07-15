@@ -80,6 +80,11 @@ Chirp.prototype.create = function(data, callback) {
   if(typeof data != 'object') data = {};
   console.log(data);
   var fn = window[callback];   
+  if('body' in data) {
+    data.title = data.body.substring(0, 40);
+    data.url = 'http://piupiu.ml/#' + encodeURIComponent(data.body);
+    console.log(data);
+  }
   if(('title' in data) && ('url' in data)) {
     if(data.url in Chirps) {
       if('data' in Chirps[data.url]) {
@@ -92,7 +97,13 @@ Chirp.prototype.create = function(data, callback) {
     this.data = data;
     Chirps[data.url] = this;
     data.callback = callback;
-    var jsonp = loadScript('http://piupiu.ml/chirp.php?data=' + encodeURIComponent(JSON.stringify(data)) + '&callback=Chirp_getResponse');
+    if('mimetype' in data) {
+      if(data.mimetype == 'text/plain') delete data.url;
+    }
+    console.log(data);
+    var script = 'http://piupiu.ml/chirp.php?data=' + encodeURIComponent(JSON.stringify(data)) + '&callback=Chirp_getResponse';
+    console.log(script);
+    var jsonp = loadScript(script);
     setTimeout(function() { unloadScript(jsonp); }, 5000);
   } else {
     if(typeof fn == 'function') fn({err: 'Missing required argument title/url'});
