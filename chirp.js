@@ -12,7 +12,22 @@ function Chirp_getResponse(data) {
   }
   if(('title' in data) && ('url' in data)) {
     if('longcode' in data) window.localStorage.setItem('$chirp-' + data.longcode, JSON.stringify(data));
-    var chirp = Chirps[data.url];
+    var chirp = {};
+    if(data.url in Chirps) {
+      chirp = Chirps[data.url];
+    } else { // chirp.io changed the URL !!!
+      if('debug' in data) {
+        for(var i in data.debug) {
+          if('operation' in data.debug[i]) {
+            if(data.debug[i].operation.indexOf('resolve_url(') == 0) {
+              data.orig = data.debug[i].operation.substring(12, data.debug[i].operation.length - 1);
+              console.log(data.orig);
+              chirp = Chirps[data.orig];
+            }
+          }
+        }
+      }
+    }
     chirp.data = data;
     data.obj = chirp;
     console.log(chirp);

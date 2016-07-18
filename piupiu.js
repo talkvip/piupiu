@@ -16,6 +16,51 @@ function unloadScript(id) {
   document.body.removeChild(el);
 }
 
+function uploadImage(form, callback) {
+  try {
+    form.target = '_self';
+    var formData = new FormData(form);
+    var request = new XMLHttpRequest();
+    request.open('POST', 'https://lut.im');
+    request.onload = function(r) {
+      if(request.status == 200) {
+        var im = JSON.parse(request.responseText);
+        console.log(im);
+        if('msg' in im) {
+          if('short' in im.msg) {
+            callback('https://lut.im/' + im.msg.short + '?dl');
+          }
+        }
+      }
+    }
+    request.send(formData);
+    return false;
+  } catch(e) {
+    form.target = 'upload';
+    return true;
+  }
+}
+
+var shortenURL_Callback = null;
+var shortenURL_Id = null;
+
+function shortenURL(url, callback) {
+  shortenURL_Callback = callback;
+  shortenURL_Id = loadScript('https://is.gd/create.php?format=json&url=' + encodeURIComponent(url) + '&callback=' + encodeURIComponent('shortenURL_getResult'));
+}
+
+function shortenURL_getResult(r) {
+  if('shorturl' in r) {
+    var https = new String('https://');
+    if(r.shorturl.indexOf(https) == 0) r.shorturl = 'http://' + r.shorturl.substring(https.length);
+    r.shorturl = r.shorturl.replace('http://is.gd/', 'http://piupiu.ml/#');
+  }
+  shortenURL_Callback(r);
+  unloadScript(shortenURL_Id);
+  shortenURL_Id = null;
+  shortenURL_Callback = null;
+}
+
 var rs = {
   GenericGF: GenericGF,
   GenericGFPoly: GenericGFPoly,

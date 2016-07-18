@@ -15,6 +15,14 @@
   URL: <input type="url" id="url" value="http://www.google.be" />
   <button id="message">CHIRP TEST</button>
 
+  <form action="https://lut.im/" method="post" enctype="multipart/form-data" onsubmit="return uploadImage(this, function(r) { document.querySelector('#url').value = r; });">
+    <input type="hidden" name="format" value="json" />
+    FILE: <input type="file" name="file" />
+    <input type="submit" value="CHIRP TEST" />
+  </form>
+  
+  <iframe name="upload"></iframe>
+
   <script>
 
   var button = document.querySelector('#message');
@@ -34,7 +42,18 @@
   function onButton() {
     var a = document.createElement('a');
     a.href = document.querySelector('#url').value;
-    chirp.create({title: a.hostname, url: document.querySelector('#url').value}, 'newChirp');
+    var url = document.querySelector('#url').value;
+    if(url.indexOf('https://lut.im/') == 0) {
+      chirp.create({title: a.hostname, url: document.querySelector('#url').value}, 'newChirp');
+    } else {
+      shortenURL(document.querySelector('#url').value, function(r) {
+        if('shorturl' in r) {
+          chirp.create({title: a.hostname, url: r.shorturl}, 'newChirp');
+        } else {
+          chirp.create({title: a.hostname, url: document.querySelector('#url').value}, 'newChirp');
+        }
+      });
+    }
   }
 
   /*
