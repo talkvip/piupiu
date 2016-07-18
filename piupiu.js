@@ -26,9 +26,11 @@ function uploadImage(form, callback) {
       if(request.status == 200) {
         var im = JSON.parse(request.responseText);
         console.log(im);
+        f = form.file.value;
         if('msg' in im) {
+          if('filename' in im.msg) f = im.msg.filename;
           if('short' in im.msg) {
-            callback('https://lut.im/' + im.msg.short + '?dl');
+            callback({url: 'https://lut.im/' + im.msg.short + '?dl', filename: f});
           }
         }
       }

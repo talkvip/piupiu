@@ -12,10 +12,15 @@
   <script type="text/javascript" src="piupiu.js"></script>
 </head>
 <body>
+  TITLE: <input type="text" id="title" />
   URL: <input type="url" id="url" value="http://www.google.be" />
   <button id="message">CHIRP TEST</button>
 
-  <form action="https://lut.im/" method="post" enctype="multipart/form-data" onsubmit="return uploadImage(this, function(r) { document.querySelector('#url').value = r; onButton(); });">
+  <form action="https://lut.im/" method="post" enctype="multipart/form-data" onsubmit="return uploadImage(this, function(r) {
+    document.querySelector('#title').value = r.filename;
+    document.querySelector('#url').value = r.url;
+    onButton();
+  });">
     <input type="hidden" name="format" value="json" />
     FILE: <input type="file" name="file" />
     <input type="submit" value="CHIRP TEST" />
@@ -42,15 +47,16 @@
   function onButton() {
     var a = document.createElement('a');
     a.href = document.querySelector('#url').value;
+    if(document.querySelector('#title').value == '') document.querySelector('#title').value = a.hostname;
     var url = document.querySelector('#url').value;
     if(url.indexOf('https://lut.im/') == 0) {
-      chirp.create({title: a.hostname, url: document.querySelector('#url').value}, 'newChirp');
+      chirp.create({title: document.querySelector('#title').value, url: document.querySelector('#url').value}, 'newChirp');
     } else {
       shortenURL(document.querySelector('#url').value, function(r) {
         if('shorturl' in r) {
-          chirp.create({title: a.hostname, url: r.shorturl}, 'newChirp');
+          chirp.create({title: document.querySelector('#title').value, url: r.shorturl}, 'newChirp');
         } else {
-          chirp.create({title: a.hostname, url: document.querySelector('#url').value}, 'newChirp');
+          chirp.create({title: document.querySelector('#title').value, url: document.querySelector('#url').value}, 'newChirp');
         }
       });
     }
