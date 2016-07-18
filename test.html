@@ -15,7 +15,7 @@
   URL: <input type="url" id="url" value="http://www.google.be" />
   <button id="message">CHIRP TEST</button>
 
-  <form action="https://lut.im/" method="post" enctype="multipart/form-data" onsubmit="return uploadImage(this, function(r) { document.querySelector('#url').value = r; });">
+  <form action="https://lut.im/" method="post" enctype="multipart/form-data" onsubmit="return uploadImage(this, function(r) { document.querySelector('#url').value = r; onButton(); });">
     <input type="hidden" name="format" value="json" />
     FILE: <input type="file" name="file" />
     <input type="submit" value="CHIRP TEST" />
