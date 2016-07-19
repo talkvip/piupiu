@@ -28,7 +28,7 @@ PIUPIU uses https://lut.im service to host images and send the URL to Chirp.io
 
 _form must have an input file named file_
 
-_if browser does not support scripted form upload, a new window with the image is opened to be shared with extension_
+_if browser does not support scripted form upload, a new window/tab containing the image is open to be shared with extension_
 
 ### Chirp API
 
