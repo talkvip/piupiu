@@ -43,7 +43,7 @@ PIUPIU = function() {
 			request.send(formData);
 			return false;
 		} catch(e) {
-			form.target = 'upload';
+			form.target = '_blank';
 			return true;
 		}
 	}

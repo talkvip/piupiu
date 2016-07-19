@@ -6,11 +6,11 @@ Send text, pictures or links using sound waves! (Chirp compatible)
 
 ### PIUPIU API
 
-*Constructor*
+**Constructor**
 
 ``var piupiu = new PIUPIU();``
 
-*Shorten URL*
+**Shorten URL**
 
 PIUPIU uses http://is.gd url shortener to allow more URL types in Chirp.io.
 
@@ -20,27 +20,29 @@ _callback receives and object containing shorturl_
 
 PIUPIU replaces https://is.gd/ with http://piupiu.ml/#
 
-*Upload Image*
+**Upload Image**
 
-PIUPIU uses http://lut.im service to host images and send the URL to Chirp.io
+PIUPIU uses https://lut.im service to host images and send the URL to Chirp.io
 
 ``piupiu.uploadImage(form, callback)``
 
 _form must have an input file named file_
 
+_if browser does not support scripted form upload, a new window with the image is opened to be shared with extension_
+
 ### Chirp API
 
 Chirps are saved locally (unique by URL) to avoid multiple creations and chirp.io service overloading
 
-*Constructor*
+**Constructor**
 
 ``var chirp = new Chirp(); // initialize once``
 
-*Create a new Chirp*
+**Create a new Chirp**
 
 ``chirp.create({title: "The title", url: "http://domain.tld"}, callback);``
 
-*Play Chirp*
+**Play Chirp**
 
 ``chirp.data.longcode = 'abcdefghijklmnopqr'; chirp.play();``
 
