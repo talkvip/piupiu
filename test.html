@@ -8,8 +8,8 @@
   <script type="text/javascript" src="meteor-sonicnetjs/sonic-server.js"></script>
   <script type="text/javascript" src="meteor-sonicnetjs/sonic-socket.js"></script>
   <script type="text/javascript" src="json2.js"></script>
-  <script type="text/javascript" src="chirp.js"></script>
   <script type="text/javascript" src="piupiu.js"></script>
+  <script type="text/javascript" src="chirp.js"></script>
 </head>
 <body>
   TITLE: <input type="text" id="title" />
@@ -43,6 +43,8 @@
       data.obj.play();
     }
   }
+  
+  var piupiu = new PIUPIU();
 
   function onButton() {
     var a = document.createElement('a');
@@ -52,7 +54,7 @@
     if(url.indexOf('https://lut.im/') == 0) {
       chirp.create({title: document.querySelector('#title').value, url: document.querySelector('#url').value}, 'newChirp');
     } else {
-      shortenURL(document.querySelector('#url').value, function(r) {
+      piupiu.shortenURL(document.querySelector('#url').value, function(r) {
         if('shorturl' in r) {
           chirp.create({title: document.querySelector('#title').value, url: r.shorturl}, 'newChirp');
         } else {

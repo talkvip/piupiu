@@ -1,0 +1,64 @@
+/* chrome.css */
+
+body {
+  margin: 0px;
+  width: 304px;
+  height: 500px;  
+  font-size: 10pt;
+  font-family: Helvetica, Arial, Sans;
+}
+
+.chrome-menu, .card {
+  box-sizing: border-box;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: default;
+  -webkit-user-select: none;
+}
+
+.chrome-menu:hover, .card:hover {
+  background-color: rgba(0, 0, 0, .1);
+}
+
+#header {
+  position: fixed;
+  left: 0px;
+  top: 0px;  
+  width: 300px;
+  height: 24px;
+  box-sizing: border-box;
+  margin: 2px;
+  font-size: 14pt;
+  padding-left: 24px;
+  background-color: rgba(0, 0, 0, .1);
+  background-image: url(icon_16.png);
+  background-repeat: no-repeat;
+  background-position: left 4px center;
+  border-radius: 4px;
+}
+
+#cards {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 300px;
+  height: 500px;
+  box-sizing: border-box;
+  padding: 4px;
+  padding-top: 28px;
+  padding-bottom: 28px;
+  overflow: scroll;
+}
+
+#footer {
+  position: fixed;
+  left: 0px;
+  bottom: 0;
+  width: 300px;
+  height: 44px;
+  box-sizing: border-box;
+  margin: 2px;
+  padding: 4px;
+  background-color: rgba(0, 0, 0, .1);
+  border-radius: 4px;
+}
