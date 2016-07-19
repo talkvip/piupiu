@@ -5,3 +5,6 @@
 [submodule "meteor-sonicnetjs"]
 	path = meteor-sonicnetjs
 	url = https://github.com/jose-flores/meteor-sonicnetjs
+[submodule "extension/chrome/meteor-sonicnetjs"]
+	path = extension/chrome/meteor-sonicnetjs
+	url = https://github.com/jose-flores/meteor-sonicnetjs
