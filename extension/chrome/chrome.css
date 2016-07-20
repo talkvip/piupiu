@@ -32,19 +32,32 @@ body {
 }
 
 .card {
+  display: block;
   font-weight: bold;
 	background-image: url(close.png);
 	background-repeat: no-repeat;
 	background-position: right top;
+	padding-left: 24px;
+	padding-right: 24px;
+	overflow: hidden;
+	overflow-x: hidden;
+  white-space: nowrap;
+	text-overflow: ellipsis;
 }
 
 .card-open {
+  height: auto;
 	background-image: url(open.png);
+	overflow-y: visible;
+  white-space: normal;
+	text-overflow: initial;
 }
 
 .card-content {
   font-weight: normal !important;
 	border: solid 2px rgba(0, 0, 0, .1);
+  white-space: normal;
+	text-overflow: initial;
 }
 
 .card-content:hover {
@@ -111,4 +124,14 @@ body {
 .chirp-button:hover {
   background-color: #E0DA27;
   box-shadow: 0px 0px 5px rgba(0, 0, 0, .5);
+}
+
+.del {
+  float: left;
+  margin-left: -20px;
+  width: 16px;
+  height: 16px;
+  background-image: url(del.png);
+  background-repeat: no-repeat;
+  background-position: left center;
 }

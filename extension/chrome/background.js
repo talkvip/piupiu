@@ -50,10 +50,26 @@ var shareFrameMenu = chrome.contextMenus.create({parentId: mainMenu, title: 'Sha
 
 var shareLinkMenu = chrome.contextMenus.create({parentId: mainMenu, title: 'Share link URL', contexts: ['link'], onclick: function(info) {
   var url = info.linkUrl;
-  var a = document.createElement('a');
-  a.href = url;
-  var title = a.hostname;
+  var title = url;
+  if('selectionText' in info) {
+    title = info.selectionText;
+  } else {
+    try {
+      var a = document.createElement('a');
+      a.href = url;
+      title = a.hostname;
+    } catch(e) {
+      title = url;
+    }
+  }
+  if(url.indexOf('http:') != 0 && url.indexOf('https:')) url = 'http://piupiu.ml/#' + url;
   //chrome.tabs.create({url:'popup.html#' + encodeURIComponent('{"title":"' + title.replace(/"/, '\"') + '","url":"' + url + '"}')});
   share(title, url);
+}});
+
+var shareTextMenu = chrome.contextMenus.create({parentId: mainMenu, title: 'Share text', contexts: ['selection'], onclick: function(info) {
+  var url = 'http://piupiu.ml/#:' + encodeURIComponent(info.selectionText).replace(/\%20/g, ' ');
+  //chrome.tabs.create({url:'popup.html#' + encodeURIComponent('{"title":"' + title.replace(/"/, '\"') + '","url":"' + url + '"}')});
+  share(info.selectionText, url);
 }});
 

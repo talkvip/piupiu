@@ -20,13 +20,19 @@ window.addEventListener('load', function(event) {
 		div.appendChild(div1);
 		div.appendChild(div2);
 		document.body.appendChild(div);
-		piupiu.shortenURL(data.url, function(r) {
-			if('shorturl' in r) {
-				chirp.create({title: data.title, url: r.shorturl}, 'newChirpClose');
-			} else {
-				chirp.create({title: data.title, url: data.url}, 'newChirpClose');
-			}
-		});		
+		if(data.url.indexOf('http://piupiu.ml/#') == 0) {
+      chirp.create({title: data.title, url: data.url}, 'newChirpClose');
+      return;
+		} else {
+      piupiu.shortenURL(data.url, function(r) {
+        if('shorturl' in r) {
+          chirp.create({title: data.title, url: r.shorturl}, 'newChirpClose');
+        } else {
+          chirp.create({title: data.title, url: data.url}, 'newChirpClose');
+        }
+      });		
+      return;
+		}
 	}
 
 	document.getElementById('chirp-url').addEventListener('click', function(event) {
@@ -58,16 +64,33 @@ function loadCards() {
       div.setAttribute('id', i);
       div.setAttribute('class', 'card');
       div.setAttribute('title', Chirps[i].data.title);
-      div.innerText = Chirps[i].data.title;
+      var del = document.createElement('div');
+      del.setAttribute('id', i + '-del');
+      del.setAttribute('class', 'del');
+      var font = document.createElement('font');
+      font.innerText = Chirps[i].data.title;
+      font.setAttribute('id', i + '-title');
+      div.appendChild(del);      
+      div.appendChild(font);
       document.getElementById('cards').appendChild(div);
+      document.getElementById(i + '-del').addEventListener('click', function(event) {
+      	var data = Chirps[event.target.id.replace('-del', '')].data;
+        localStorage.removeItem('$chirp-' + data.longcode);
+        setTimeout(function() {
+          Chirps = {};
+          loadCards();
+        }, 1000);
+        event.stopPropagation();
+      });
       document.getElementById(i).addEventListener('click', function(event) {
-      	var data = Chirps[event.target.id].data;
-      	var content = document.getElementById(data.longcode + '-content');
+      	var data = Chirps[event.target.id.replace('-title', '')].data;
+      	var content = document.getElementById(data.url + '-content');
       	if(typeof content == 'undefined' || content == null) {
-        	showCard(Chirps[event.target.id].data);
+        	showCard(data);
         } else {
-        	event.target.removeChild(content);
-					event.target.className = event.target.className.replace(' card-open', '');
+          var card = document.getElementById(event.target.id.replace('-title', ''));
+        	card.removeChild(content);
+					card.className = card.className.replace(' card-open', '');
         }
       });
     }	
@@ -78,22 +101,34 @@ function showCard(data) {
 	var parent = document.getElementById(data.url);
 	parent.className = parent.className += ' card-open';
 	var div = document.createElement('div');
-	div.setAttribute('id', data.longcode + '-content');
+	div.setAttribute('id', data.url + '-content');
 	div.setAttribute('class', 'card-content');
-	div.setAttribute('title', data.url);	
-	div.innerText = data.url;
+	div.setAttribute('style', 'margin-top: 5px; word-wrap: break-word; text-overflow: ellipsis;');
+	var url = data.url;
+	if(url.indexOf('http://piupiu.ml/#') == 0) {
+	  var parts = url.replace('http://piupiu.ml/#', '').split(':');
+	  if(parts.length > 1) {
+	    if(parts[0] == '') {
+  	    url = decodeURIComponent(url.replace('http://piupiu.ml/#', '').substring(1));
+	    } else {
+  	    url = decodeURIComponent(url.replace('http://piupiu.ml/#', ''));
+	    }
+	  }
+	}
+	div.setAttribute('title', url);	
+	div.innerText = url;
   parent.appendChild(div);
 	var btn = document.createElement('div');
-	btn.setAttribute('id', data.longcode + '-chirp');
+	btn.setAttribute('id', data.url + '-chirp');
 	btn.setAttribute('class', 'chirp-button');
 	btn.setAttribute('title', 'Click here to share with sound!');
-  document.getElementById(data.longcode + '-content').appendChild(btn);
-  document.getElementById(data.longcode + '-content').addEventListener('click', function(event) {
+  document.getElementById(data.url + '-content').appendChild(btn);
+  document.getElementById(data.url + '-content').addEventListener('click', function(event) {
 		var data = Chirps[event.target.id.replace('-content', '')].data;
 		chrome.tabs.create({url: data.url});
   });
-  document.getElementById(data.longcode + '-chirp').addEventListener('click', function(event) {
-		chirp.data.longcode = event.target.id.replace('-content', '');
+  document.getElementById(data.url + '-chirp').addEventListener('click', function(event) {
+		chirp.data.longcode = Chirps[event.target.id.replace('-chirp', '')].data.longcode;
 		chirp.play();
   });
 }
