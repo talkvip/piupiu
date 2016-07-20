@@ -2,7 +2,19 @@ var piupiu = new PIUPIU();
 var chirp = new Chirp();
 
 window.addEventListener('load', function(event) {
+
+  window.onerror = function(err, u, l) {
+		document.body.innerText = '';
+	  var div = document.createElement('div');
+		div.setAttribute('class', 'chrome-menu');
+		div.setAttribute('style', 'width: 100% !important;');
+		div.innerText = u.substring(u.lastIndexOf('/') + 1) + '[' + l + '] ' + err;
+		document.body.appendChild(div);
+		return false;
+  }
+  
 	var h = decodeURIComponent(new String(location.hash).substring(1));
+	console.log(h);
 	var data = {};
 	if(h != '') data = JSON.parse(h);
 	if(typeof data != 'object' || data == null) data = {};
@@ -83,14 +95,16 @@ function loadCards() {
         event.stopPropagation();
       });
       document.getElementById(i).addEventListener('click', function(event) {
-      	var data = Chirps[event.target.id.replace('-title', '')].data;
-      	var content = document.getElementById(data.url + '-content');
-      	if(typeof content == 'undefined' || content == null) {
-        	showCard(data);
-        } else {
-          var card = document.getElementById(event.target.id.replace('-title', ''));
-        	card.removeChild(content);
-					card.className = card.className.replace(' card-open', '');
+        if(event.target.id.replace('-title', '') in Chirps) {
+          var data = Chirps[event.target.id.replace('-title', '')].data;
+          var content = document.getElementById(data.url + '-content');
+          if(typeof content == 'undefined' || content == null) {
+            showCard(data);
+          } else {
+            var card = document.getElementById(event.target.id.replace('-title', ''));
+            card.removeChild(content);
+            card.className = card.className.replace(' card-open', '');
+          }
         }
       });
     }	
@@ -124,12 +138,15 @@ function showCard(data) {
 	btn.setAttribute('title', 'Click here to share with sound!');
   document.getElementById(data.url + '-content').appendChild(btn);
   document.getElementById(data.url + '-content').addEventListener('click', function(event) {
-		var data = Chirps[event.target.id.replace('-content', '')].data;
-		chrome.tabs.create({url: data.url});
+    if(event.target.id.replace('-content', '') in Chirps) {
+      var data = Chirps[event.target.id.replace('-content', '')].data;
+      chrome.tabs.create({url: data.url});
+		}
   });
   document.getElementById(data.url + '-chirp').addEventListener('click', function(event) {
 		chirp.data.longcode = Chirps[event.target.id.replace('-chirp', '')].data.longcode;
 		chirp.play();
+		event.stopPropagation();
   });
 }
 

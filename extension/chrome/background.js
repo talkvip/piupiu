@@ -1,7 +1,7 @@
 /* background.js */
 
 function share(title, url) {
-  var popupUrl = 'popup.html#' + encodeURIComponent('{"title":"' + title.replace(/"/g, '\"') + '","url":"' + url.replace(/"/g, '\"') + '"}');
+  var popupUrl = 'popup.html#' + encodeURIComponent('{"title":"' + title.replace(/"/g, '\\"') + '","url":"' + url.replace(/"/g, '\\"') + '"}');
   if(chrome.windows) {
 		chrome.windows.create({type: 'popup', url: popupUrl, width: 300, height: 100});
 	} else {
@@ -18,7 +18,6 @@ var mainMenu = chrome.contextMenus.create({title: 'piupiu', contexts: ['all']});
 var shareURLMenu = chrome.contextMenus.create({parentId: mainMenu, title: 'Share current URL', contexts: ['page'], onclick: function(info) {
 	chrome.tabs.query({active: true, currentWindow: true}, function(arrayOfTabs) {
 		var activeTab = arrayOfTabs[0];
-		//chrome.tabs.create({url:'popup.html#' + encodeURIComponent('{"title":"' + activeTab.title.replace(/"/, '\"') + '","url":"' + activeTab.url + '"}')});
 		share(activeTab.title, activeTab.url);
 	});
 }});
@@ -34,7 +33,6 @@ var shareImageMenu = chrome.contextMenus.create({parentId: mainMenu, title: 'Sha
     a.href = url;
     title = a.hostname;
   }
-  //chrome.tabs.create({url:'popup.html#' + encodeURIComponent('{"title":"' + title.replace(/"/, '\"') + '","url":"' + url + '"}')});
   share(title, url);
 }});
 
@@ -44,7 +42,6 @@ var shareFrameMenu = chrome.contextMenus.create({parentId: mainMenu, title: 'Sha
   var a = document.createElement('a');
   a.href = url;
   var title = a.hostname;
-  //chrome.tabs.create({url:'popup.html#' + encodeURIComponent('{"title":"' + title.replace(/"/, '\"') + '","url":"' + url + '"}')});
   share(title, url);
 }});
 
@@ -63,13 +60,11 @@ var shareLinkMenu = chrome.contextMenus.create({parentId: mainMenu, title: 'Shar
     }
   }
   if(url.indexOf('http:') != 0 && url.indexOf('https:')) url = 'http://piupiu.ml/#' + url;
-  //chrome.tabs.create({url:'popup.html#' + encodeURIComponent('{"title":"' + title.replace(/"/, '\"') + '","url":"' + url + '"}')});
   share(title, url);
 }});
 
 var shareTextMenu = chrome.contextMenus.create({parentId: mainMenu, title: 'Share text', contexts: ['selection'], onclick: function(info) {
   var url = 'http://piupiu.ml/#:' + encodeURIComponent(info.selectionText).replace(/\%20/g, ' ');
-  //chrome.tabs.create({url:'popup.html#' + encodeURIComponent('{"title":"' + title.replace(/"/, '\"') + '","url":"' + url + '"}')});
   share(info.selectionText, url);
 }});
 
