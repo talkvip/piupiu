@@ -185,5 +185,5 @@ Chirp.prototype.load = function(callback) {
 }
 
 window.addEventListener('load', function() {
-  new Chirp().load();
+  new Chirp().load(function(){});
 });
