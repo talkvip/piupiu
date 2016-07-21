@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<os:openServiceDescription
+    xmlns:os="http://www.microsoft.com/schemas/openservicedescription/1.0">
+    <os:homepageUrl>http://piupiu.ml</os:homepageUrl>
+    <os:display>
+        <os:name>Share with piupiu</os:name>
+        <os:icon>http://piupiu.ml/favicon.ico</os:icon>
+        <os:description>Send text, pictures or links using sound waves! (Chirp compatible)</os:description>
+    </os:display>
+    <os:activity category="Share">
+        <os:activityAction context="document">
+            <os:execute action="http://piupiu.ml/" method="post">
+                <os:parameter name="title" value="{documentTitle}" type="text" /> 
+                <os:parameter name="url" value="{documentUrl}" type="text" /> 
+            </os:execute>
+        </os:activityAction>
+        <os:activityAction context="selection">
+            <os:execute action="http://piupiu.ml/" method="post">
+                <os:parameter name="title" value="{selection}" type="text" /> 
+                <os:parameter name="url" value="http://piupiu.ml/#:{selection}" type="text" /> 
+            </os:execute>
+        </os:activityAction>
+        <os:activityAction context="link">
+            <os:execute action="http://piupiu.ml/" method="post">
+                <os:parameter name="title" value="{linkText}" type="text" /> 
+                <os:parameter name="url" value="{link}" type="text" /> 
+            </os:execute>
+        </os:activityAction>
+    </os:activity>
+</os:openServiceDescription> 
