@@ -1,0 +1,1 @@
+pref("extensions.piupiu.firstRunDone", false);

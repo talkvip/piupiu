@@ -1,0 +1,29 @@
+<?xml version="1.0"?> 
+<?xml-stylesheet href="chrome://piupiu/skin/overlay.css" type="text/css"?> 
+<!DOCTYPE overlay SYSTEM "chrome://piupiu/locale/overlay.dtd"> 
+<overlay id="piupiu-overlay" 
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"> 
+  <script src="overlay.js"/> 
+
+  <toolbarpalette id="BrowserToolbarPalette">
+    <toolbarbutton id="piupiu-button"
+      class="toolbarbutton-1 chromeclass-toolbar-additional" 
+      label="&piupiubutton;"
+      tooltiptext="&piupiubutton;"
+      oncommand="PIUPIU.popup(event);" />
+  </toolbarpalette>
+
+  <menupopup id="menu_ToolsPopup"> 
+    <menuitem id="piupiu-menu" label="&piupiumenu;" 
+        oncommand="PIUPIU.popup(event);"/> 
+  </menupopup>
+
+  <popupset>
+      <menupopup id="piupiu-popup">
+          <menuitem label="Website" oncommand="gBrowser.selectedTab = gBrowser.addTab('http://www.your-website.com/');" />
+          <menuseparator />
+          <menuitem label="Options" oncommand="window.open('chrome://yourextname/content/options.xul', 'Options', 'dialog,chrome,modal,titlebar,toolbar,centerscreen=yes');" />
+      </menupopup>
+  </popupset>
+
+</overlay> 

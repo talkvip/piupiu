@@ -1,0 +1,7 @@
+content	piupiu jar:chrome/piupiu.jar!/content/ 
+overlay	chrome://browser/content/browser.xul	chrome://piupiu/content/overlay.xul
+
+locale	piupiu	en-US	jar:chrome/piupiu.jar!/locale/en-US/
+
+skin	piupiu	classic/1.0	jar:chrome/piupiu.jar!/skin/
+style	chrome://global/content/customizeToolbar.xul	chrome://piupiu/skin/overlay.css
