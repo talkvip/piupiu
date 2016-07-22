@@ -152,7 +152,7 @@ Chirp.prototype.load = function(callback) {
       if('sync' in chrome.storage) {
         chrome.storage.sync.get(null, function(items) {
           var allKeys = Object.keys(items);
-          for(var i in window.localStorage) {
+          for(var i in allKeys) {
             if(i.substring(0, 7) == '$chirp-') {
               var obj = JSON.parse(window.localStorage.getItem(i));
               if(typeof obj == 'object') {

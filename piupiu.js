@@ -23,15 +23,24 @@ PIUPIU = function() {
 
 	this.uploadImage = function(form, callback) {
 		try {
-			form.target = '_self';
-			var formData = new FormData(form);
+		  var formData = null;
+		  if('append' in form) {
+		    formData = form;
+		  } else {
+        form.target = '_self';
+        formData = new FormData(form);
+			}
 			var request = new XMLHttpRequest();
 			request.open('POST', 'https://lut.im');
+			request.onerror = function(e) {
+			  callback(e);
+			}
 			request.onload = function(r) {
 				if(request.status == 200) {
 					var im = JSON.parse(request.responseText);
 					console.log(im);
-					f = form.file.value;
+					//f = form.file.value;
+					f = 'image.jpeg';
 					if('msg' in im) {
 						if('filename' in im.msg) f = im.msg.filename;
 						if('short' in im.msg) {
@@ -43,10 +52,31 @@ PIUPIU = function() {
 			request.send(formData);
 			return false;
 		} catch(e) {
+		  callback({err: e});
 			form.target = '_blank';
 			return true;
 		}
 	}
+
+  this.dataURItoBlob = function(dataURI) {
+    // convert base64/URLEncoded data component to raw binary data held in a string
+    var byteString;
+    if (dataURI.split(',')[0].indexOf('base64') >= 0)
+        byteString = atob(dataURI.split(',')[1]);
+    else
+        byteString = unescape(dataURI.split(',')[1]);
+
+    // separate out the mime component
+    var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+
+    // write the bytes of the string to a typed array
+    var ia = new Uint8Array(byteString.length);
+    for (var i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+    }
+
+    return new Blob([ia], {type:mimeString});
+}
 
 	this.shortenURL = function(url, callback) {
 		this.shortenURL_Callback = callback;

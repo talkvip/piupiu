@@ -18,6 +18,7 @@ window.addEventListener('load', function(event) {
 	var data = {};
 	if(h != '') data = JSON.parse(h);
 	if(typeof data != 'object' || data == null) data = {};
+	console.log(data);
 	if(('title' in data) && ('url' in data)) {
 		document.body.innerText = '';
 	  var div = document.createElement('div');
@@ -32,6 +33,61 @@ window.addEventListener('load', function(event) {
 		div.appendChild(div1);
 		div.appendChild(div2);
 		document.body.appendChild(div);
+		try {
+      if('image' in data) {
+        console.log(data.url.indexOf('data:'));
+        if(data.url.indexOf('data:') == 0) { // data URI
+          var blob = piupiu.dataURItoBlob(data.url);
+          console.log(blob);
+          var f = 'image' + blob.type.replace('image/', '.');
+          var file = new File([blob], f, {type: blob.type});
+          var form = new FormData();
+          form.append('format', 'json');
+          form.append('file', file, f);
+          piupiu.uploadImage(form, function(r) {
+            if('url' in r) {
+              chirp.create({title: r.filename, url: r.url}, 'newChirpClose');
+            } else {
+              chirp.create({title: data.title, url: data.url}, 'newChirpClose');
+            }
+          });
+          return;
+        }
+        chirp.create({title: data.title, url: data.url}, 'newChirpClose');
+        return; // lut.im down?
+        if(data.image) {
+          var blob = null;
+          var xhr = new XMLHttpRequest(); 
+          xhr.open('GET', data.url); 
+          xhr.responseType = 'blob';
+          xhr.onload = function() {
+            blob = xhr.response;
+            console.log(blob);
+            var f = data.url.substring(data.url.lastIndexOf('/') + 1);
+            if(f.indexOf('.') == -1) f += blob.type.replace('image/', '.');
+            if(f.length > 50) f = f.substring(f.length - 50);
+            console.log(f);
+            var file = new File([blob], f, {type: blob.type});
+            var form = new FormData();
+            form.append('format', 'json');
+            form.append('file', file, f);
+            piupiu.uploadImage(form, function(r) {
+              if('url' in r) {
+                chirp.create({title: r.filename, url: r.url}, 'newChirpClose');
+              } else {
+                chirp.create({title: data.title, url: data.url}, 'newChirpClose');
+              }
+            });
+          }
+          xhr.send();		  
+          return;
+        }
+      }
+		} catch(e) {
+		  console.log(e);
+      chirp.create({title: data.title, url: data.url}, 'newChirpClose');
+      return;		
+		}
 		if(data.url.indexOf('http://piupiu.ml/#') == 0) {
       chirp.create({title: data.title, url: data.url}, 'newChirpClose');
       return;
@@ -64,6 +120,23 @@ window.addEventListener('load', function(event) {
 		});		
 	});
 	
+	document.getElementById('confirm-del-btn').addEventListener('click', function(event) {
+	  if(event.target.getAttribute('longcode') == '') return;
+    localStorage.removeItem('$chirp-' + event.target.getAttribute('longcode'));
+    try { chrome.storage.sync.remove('$chirp-' + event.target.getAttribute('longcode'), function() {}); } catch(e) {}
+    event.target.setAttribute('longcode', '');
+    document.getElementById('confirm-del').style.display = 'none';
+    setTimeout(function() {
+      Chirps = {};
+      loadCards();
+    }, 1000);	
+	});
+
+	document.getElementById('confirm-del-cancel').addEventListener('click', function(event) {
+    event.target.setAttribute('longcode', '');
+    document.getElementById('confirm-del').style.display = 'none';
+	});
+	
 	loadCards();
 });
 
@@ -87,11 +160,8 @@ function loadCards() {
       document.getElementById('cards').appendChild(div);
       document.getElementById(i + '-del').addEventListener('click', function(event) {
       	var data = Chirps[event.target.id.replace('-del', '')].data;
-        localStorage.removeItem('$chirp-' + data.longcode);
-        setTimeout(function() {
-          Chirps = {};
-          loadCards();
-        }, 1000);
+        document.getElementById('confirm-del-btn').setAttribute('longcode', data.longcode);
+        document.getElementById('confirm-del').style.display = 'block';
         event.stopPropagation();
       });
       document.getElementById(i).addEventListener('click', function(event) {
@@ -130,7 +200,18 @@ function showCard(data) {
 	  }
 	}
 	div.setAttribute('title', url);	
-	div.innerText = url;
+	if('mimetype' in data) {
+	  if(data.mimetype.indexOf('image/') == 0) {
+	    var img = document.createElement('img');
+	    img.setAttribute('id', data.url + '-image');
+	    img.src = data.url;
+	    div.appendChild(img);
+	  } else {
+	    div.innerText = url;
+	  }
+	} else {
+	  div.innerText = url;
+	}
   parent.appendChild(div);
 	var btn = document.createElement('div');
 	btn.setAttribute('id', data.url + '-chirp');
@@ -140,6 +221,12 @@ function showCard(data) {
   document.getElementById(data.url + '-content').addEventListener('click', function(event) {
     if(event.target.id.replace('-content', '') in Chirps) {
       var data = Chirps[event.target.id.replace('-content', '')].data;
+      chrome.tabs.create({url: data.url});
+		}
+  });
+  document.getElementById(data.url + '-image').addEventListener('click', function(event) {
+    if(event.target.id.replace('-image', '') in Chirps) {
+      var data = Chirps[event.target.id.replace('-image', '')].data;
       chrome.tabs.create({url: data.url});
 		}
   });
