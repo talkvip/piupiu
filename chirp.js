@@ -84,9 +84,9 @@ Chirp = function() {
     var diff = this.freqError;
     var index = -1;
     for(var i in this.chirp.freqTable) {
-      if(Math.abs(freq - i) < diff) {
-        index = i;
-        diff = Math.abs(freq - i);
+      if(Math.abs(freq - parseFloat(i)) < diff) {
+        index = parseFloat(i);
+        diff = Math.abs(freq - parseFloat(i));
       }
     }
     if(index == -1) {
