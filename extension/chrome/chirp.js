@@ -42,7 +42,11 @@ function Chirp_getResponse(data) {
     data.obj = chirp;
     console.log(chirp);
     console.log(data);
-    if(typeof fn == 'function') fn(data);
+    if(typeof fn == 'function') {
+      setTimeout(function() {
+        fn(data);
+      }, 1000);
+    }
   }
 }
 

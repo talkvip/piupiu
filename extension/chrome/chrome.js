@@ -39,7 +39,8 @@ window.addEventListener('load', function(event) {
         if(data.url.indexOf('data:') == 0) { // data URI
           var blob = piupiu.dataURItoBlob(data.url);
           console.log(blob);
-          var f = 'image' + blob.type.replace('image/', '.');
+          alert(data.title);
+          var f = data.title.replace(/[?*\/\\:]/g, ' ') + blob.type.replace('image/', '.');
           var file = new File([blob], f, {type: blob.type});
           var form = new FormData();
           form.append('format', 'json');
@@ -153,7 +154,10 @@ function loadCards() {
       del.setAttribute('id', i + '-del');
       del.setAttribute('class', 'del');
       var font = document.createElement('font');
-      font.innerText = Chirps[i].data.title;
+      var title = Chirps[i].data.title;
+      if(title.length > 100) title = title.substring(0, 100);
+      if(title.length > 97) title = title.substring(0, title.lastIndexOf(' ')) + '...';
+      font.innerText = title;
       font.setAttribute('id', i + '-title');
       div.appendChild(del);      
       div.appendChild(font);
@@ -224,12 +228,14 @@ function showCard(data) {
       chrome.tabs.create({url: data.url});
 		}
   });
-  document.getElementById(data.url + '-image').addEventListener('click', function(event) {
-    if(event.target.id.replace('-image', '') in Chirps) {
-      var data = Chirps[event.target.id.replace('-image', '')].data;
-      chrome.tabs.create({url: data.url});
-		}
-  });
+  if(typeof document.getElementById(data.url + '-image') != 'undefined' && document.getElementById(data.url + '-image') != null) {
+    document.getElementById(data.url + '-image').addEventListener('click', function(event) {
+      if(event.target.id.replace('-image', '') in Chirps) {
+        var data = Chirps[event.target.id.replace('-image', '')].data;
+        chrome.tabs.create({url: data.url});
+      }
+    });
+  }
   document.getElementById(data.url + '-chirp').addEventListener('click', function(event) {
 		chirp.data.longcode = Chirps[event.target.id.replace('-chirp', '')].data.longcode;
 		chirp.play();
@@ -252,13 +258,12 @@ function newChirpClose(data) {
 	console.log(data);
 	if('error' in data) {
 		alert(data.error.msg + '(Invalid URL?)');
-		document.body.innerText = data.error.msg;
 		window.close();
 	} else {
 		data.obj.play();
 		setTimeout(function() {
 		  window.close();
-		}, 2000);
+		}, 4000);
 	}
 }
   
