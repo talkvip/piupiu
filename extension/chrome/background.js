@@ -14,21 +14,21 @@ function share(data) {
 }
 
 var mainMenu = chrome.contextMenus.create({title: 'piupiu', contexts: ['page', 'image', 'frame', 'link', 'selection']});
-var actionMenu = chrome.contextMenus.create({title: 'Share current URL', contexts: ['browser_action'], onclick: function(info) {
+var actionMenu = chrome.contextMenus.create({title: chrome.i18n.getMessage('shareURL'), contexts: ['browser_action'], onclick: function(info) {
 	chrome.tabs.query({active: true, currentWindow: true}, function(arrayOfTabs) {
 		var activeTab = arrayOfTabs[0];
 		share({title: activeTab.title, url: activeTab.url});
 	});
 }});
 
-var shareURLMenu = chrome.contextMenus.create({parentId: mainMenu, title: 'Share current URL', contexts: ['page'], onclick: function(info) {
+var shareURLMenu = chrome.contextMenus.create({parentId: mainMenu, title: chrome.i18n.getMessage('shareURL'), contexts: ['page'], onclick: function(info) {
 	chrome.tabs.query({active: true, currentWindow: true}, function(arrayOfTabs) {
 		var activeTab = arrayOfTabs[0];
 		share({title: activeTab.title, url: activeTab.url});
 	});
 }});
 
-var shareImageMenu = chrome.contextMenus.create({parentId: mainMenu, title: 'Share image', contexts: ['image'], onclick: function(info) {
+var shareImageMenu = chrome.contextMenus.create({parentId: mainMenu, title: chrome.i18n.getMessage('shareImage'), contexts: ['image'], onclick: function(info) {
   var url = info.srcUrl;
 	chrome.tabs.query({active: true, currentWindow: true}, function(arrayOfTabs) {  
     var activeTab = arrayOfTabs[0];
@@ -49,7 +49,7 @@ var shareImageMenu = chrome.contextMenus.create({parentId: mainMenu, title: 'Sha
   });
 }});
 
-var shareFrameMenu = chrome.contextMenus.create({parentId: mainMenu, title: 'Share frame URL', contexts: ['frame'], onclick: function(info) {
+var shareFrameMenu = chrome.contextMenus.create({parentId: mainMenu, title: chrome.i18n.getMessage('shareFrame'), contexts: ['frame'], onclick: function(info) {
   console.log(info);
   var url = info.frameUrl;
   var a = document.createElement('a');
@@ -58,7 +58,7 @@ var shareFrameMenu = chrome.contextMenus.create({parentId: mainMenu, title: 'Sha
   share({title: title, url: url});
 }});
 
-var shareLinkMenu = chrome.contextMenus.create({parentId: mainMenu, title: 'Share link URL', contexts: ['link'], onclick: function(info) {
+var shareLinkMenu = chrome.contextMenus.create({parentId: mainMenu, title: chrome.i18n.getMessage('shareLink'), contexts: ['link'], onclick: function(info) {
   var url = info.linkUrl;
   var title = url;
   if('selectionText' in info) {
@@ -76,7 +76,7 @@ var shareLinkMenu = chrome.contextMenus.create({parentId: mainMenu, title: 'Shar
   share({title: title, url: url});
 }});
 
-var shareTextMenu = chrome.contextMenus.create({parentId: mainMenu, title: 'Share text', contexts: ['selection'], onclick: function(info) {
+var shareTextMenu = chrome.contextMenus.create({parentId: mainMenu, title: chrome.i18n.getMessage('shareText'), contexts: ['selection'], onclick: function(info) {
   var url = 'http://piupiu.ml/#:' + encodeURIComponent(info.selectionText).replace(/\%20/g, ' ');
   share({title: info.selectionText, url: url});
 }});

@@ -1,0 +1,9 @@
+{
+  "extensionName": { "message": "piupiu" },
+  "extensionDescription": { "message": "Send text, pictures or links using sound waves! (Chirp compatible)" },
+  "shareURL": { "message": "Share current URL" },
+  "shareImage": { "message": "Share image" },
+  "shareFrame": { "message": "Share frame URL" },
+  "shareLink": { "message": "Share link URL" },
+  "shareText": { "message": "Share text" }
+}
