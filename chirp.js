@@ -90,7 +90,7 @@ Chirp = function() {
       }
     }
     if(index == -1) {
-      console.error(freq, 'is an invalid frequency.');
+      //console.error(freq, 'is an invalid frequency.');
       return '';    
     }
     return this.chirp.freqTable[index];
