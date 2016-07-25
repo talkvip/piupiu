@@ -57,10 +57,11 @@ Chirp = function() {
   this.charTable = {};
     
   this.coder = new SonicCoder({
-    alphabet: '0123456789abcdefghijklmnopqrstuv',
     freqMin: 1760.0,
     freqMax: 10500.0
   });
+  
+  this.coder.alphabet = '0123456789abcdefghijklmnopqrstuv';
   
   var fundamental = this.coder.freqMin;  
   var noteratio = 1.0594630943591;
