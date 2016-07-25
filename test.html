@@ -7,7 +7,7 @@
   <script type="text/javascript" src="meteor-sonicnetjs/sonic-coder.js"></script>
   <script type="text/javascript" src="meteor-sonicnetjs/sonic-server.js"></script>
   <script type="text/javascript" src="meteor-sonicnetjs/sonic-socket.js"></script>
-  <script type="text/javascript" src="json2.js"></script>
+  <script type="text/javascript" src="JSON-js/json2.js"></script>
   <script type="text/javascript" src="piupiu.js"></script>
   <script type="text/javascript" src="chirp.js"></script>
 </head>
@@ -32,6 +32,8 @@
   button.addEventListener('click', onButton);
  
   var chirp = new Chirp();
+  
+  console.log(chirp);
 
   function newChirp(data) {
     console.log(data);

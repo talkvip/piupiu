@@ -52,22 +52,47 @@ Chirp = function() {
 
   this.data = {};
   
+  this.freqTable = {};
+  
+  this.charTable = {};
+    
   this.coder = new SonicCoder({
     alphabet: '0123456789abcdefghijklmnopqrstuv',
     freqMin: 1760.0,
     freqMax: 10500.0
   });
   
+  var fundamental = this.coder.freqMin;  
+  var noteratio = 1.0594630943591;
+  for(var i = 0; i < this.coder.alphabet.length; i++) {
+    this.charTable[this.coder.alphabet.charAt(i)] = fundamental * Math.pow(noteratio, i);
+    this.freqTable[fundamental * Math.pow(noteratio, i)] = this.coder.alphabet.charAt(i);
+  }  
+  
+  this.coder.chirp = this;
+  
   this.coder.charToFreq = function(char) {
-    var fundamental = this.freqMin;  
-    var noteratio = 1.0594630943591;
-    var index = this.alphabet.indexOf(char) - 1; // ignore startChar
-    if(index == -1 && char != this.startChar) { 
-      // If this character isn't in the alphabet, error out.
+    if(!(char in this.chirp.charTable)) {
       console.error(char, 'is an invalid character.');
-      return 0;
-    }  
-	  return fundamental * Math.pow(noteratio, index); 
+      return 0;    
+    } 
+	  return this.chirp.charTable[char]; 
+	};
+
+  this.coder.freqToChar = function(freq) {
+    var diff = this.freqError;
+    var index = -1;
+    for(var i in this.chirp.freqTable) {
+      if(Math.abs(freq - i) < diff) {
+        index = i;
+        diff = Math.abs(freq - i);
+      }
+    }
+    if(index == -1) {
+      console.error(freq, 'is an invalid frequency.');
+      return '';    
+    }
+    return this.freqTable[index];
 	};
 	
   this.socket = new SonicSocket({
@@ -80,6 +105,8 @@ Chirp = function() {
     
   this.socket.scheduleToneAt = function(freq, startTime, duration) {
     var gainNode = audioContext.createGain();
+
+    startTime += 1.0;
 
     // Gain => Merger
     gainNode.gain.value = 0;
