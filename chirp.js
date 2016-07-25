@@ -61,6 +61,7 @@ Chirp = function() {
     freqMax: 10500.0
   });
   
+  this.coder.startChar = 'h';
   this.coder.alphabet = '0123456789abcdefghijklmnopqrstuv';
   
   var fundamental = this.coder.freqMin;  
