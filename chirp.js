@@ -93,7 +93,7 @@ Chirp = function() {
       console.error(freq, 'is an invalid frequency.');
       return '';    
     }
-    return this.freqTable[index];
+    return this.chirp.freqTable[index];
 	};
 	
   this.socket = new SonicSocket({
