@@ -82,7 +82,6 @@ Chirp = function() {
 	};
 
   this.coder.freqToChar = function(freq) {
-    console.log(['freqToChar', freq]);
     var diff = this.freqError;
     var index = -1;
     for(var i in this.chirp.freqTable) {
