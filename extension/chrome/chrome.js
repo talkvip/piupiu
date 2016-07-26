@@ -38,8 +38,7 @@ window.addEventListener('load', function(event) {
         console.log(data.url.indexOf('data:'));
         if(data.url.indexOf('data:') == 0) { // data URI
           var blob = piupiu.dataURItoBlob(data.url);
-          console.log(blob);
-          alert(data.title);
+          //console.log(blob);
           var f = data.title.replace(/[?*\/\\:]/g, ' ') + blob.type.replace('image/', '.');
           var file = new File([blob], f, {type: blob.type});
           var form = new FormData();
@@ -63,7 +62,7 @@ window.addEventListener('load', function(event) {
           xhr.responseType = 'blob';
           xhr.onload = function() {
             blob = xhr.response;
-            console.log(blob);
+            //console.log(blob);
             var f = data.url.substring(data.url.lastIndexOf('/') + 1);
             if(f.indexOf('.') == -1) f += blob.type.replace('image/', '.');
             if(f.length > 50) f = f.substring(f.length - 50);

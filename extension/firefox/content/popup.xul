@@ -7,7 +7,7 @@
 
 <hbox align="center">
   <description flex="1">&separate.label;</description>
-  <button label="&close.label;" oncommand="close();"/>
+  <button label="&close.label;" oncommand="window.close();"/>
 </hbox>
 
 </window>

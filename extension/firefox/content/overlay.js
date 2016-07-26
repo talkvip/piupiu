@@ -18,7 +18,7 @@ var PIUPIU = {
     for(var i = 1; i <= 100; i++) {
       var sampleChirp = document.createElement('menuitem');
       sampleChirp.setAttribute('label', 'Sample chirp ' + i + ' (fake)');
-      sampleChirp.setAttribute('oncommand', 'PIUPIU.showChard(\'' + i + '\');');
+      sampleChirp.setAttribute('oncommand', 'PIUPIU.showCard(\'' + i + '\');');
       parent.appendChild(sampleChirp);
       if(i == 10) {
         var menu =  document.createElement('menu');

@@ -50,7 +50,7 @@ var shareImageMenu = chrome.contextMenus.create({parentId: mainMenu, title: chro
 }});
 
 var shareFrameMenu = chrome.contextMenus.create({parentId: mainMenu, title: chrome.i18n.getMessage('shareFrame'), contexts: ['frame'], onclick: function(info) {
-  console.log(info);
+  //console.log(info);
   var url = info.frameUrl;
   var a = document.createElement('a');
   a.href = url;
