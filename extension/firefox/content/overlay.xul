@@ -20,9 +20,6 @@
 
   <popupset>
       <menupopup id="piupiu-popup">
-          <menuitem label="Website" oncommand="gBrowser.selectedTab = gBrowser.addTab('http://www.your-website.com/');" />
-          <menuseparator />
-          <menuitem label="Options" oncommand="window.open('chrome://yourextname/content/options.xul', 'Options', 'dialog,chrome,modal,titlebar,toolbar,centerscreen=yes');" />
       </menupopup>
   </popupset>
 
