@@ -123,7 +123,7 @@ window.addEventListener('load', function(event) {
 	document.getElementById('confirm-del-btn').addEventListener('click', function(event) {
 	  if(event.target.getAttribute('longcode') == '') return;
     localStorage.removeItem('$chirp-' + event.target.getAttribute('longcode'));
-    try { chrome.storage.sync.remove('$chirp-' + event.target.getAttribute('longcode'), function() {}); } catch(e) {}
+    try { chrome.storage.sync.remove('$chirp-' + event.target.getAttribute('longcode'), function() {}); } catch(e) { console.log(e); }
     event.target.setAttribute('longcode', '');
     document.getElementById('confirm-del').style.display = 'none';
     setTimeout(function() {

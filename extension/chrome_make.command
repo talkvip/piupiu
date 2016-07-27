@@ -1,6 +1,6 @@
 #!/bin/sh
 
-cd "`dirname $0`"
+cd "`dirname "$0"`"
 rm chrome.zip
 cp -f ../*.js chrome/
 cp -f ../*.png chrome/

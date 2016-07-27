@@ -163,6 +163,7 @@ Chirp.prototype.play = function() {
 }
 
 Chirp.prototype.load = function(callback) {
+
   for(var i in window.localStorage) {
     if(i.substring(0, 7) == '$chirp-') {
       var obj = JSON.parse(window.localStorage.getItem(i));
@@ -176,14 +177,17 @@ Chirp.prototype.load = function(callback) {
     }
   }
 
+	console.log('*** localstorage ***');	
+	console.log(Chirps);
+
   if(chrome) {
     if('storage' in chrome) {
       if('sync' in chrome.storage) {
         chrome.storage.sync.get(null, function(items) {
           var allKeys = Object.keys(items);
           for(var i in allKeys) {
-            if(i.substring(0, 7) == '$chirp-') {
-              var obj = JSON.parse(window.localStorage.getItem(i));
+            if(allKeys[i].indexOf('$chirp-') == 0) {
+              var obj = JSON.parse(items[allKeys[i]]);
               if(typeof obj == 'object') {
                 if('url' in obj) {
                   Chirps[obj.url] = new Chirp();
@@ -193,21 +197,22 @@ Chirp.prototype.load = function(callback) {
               }
             }
           }
+          console.log('*** chrome sync ***');
           console.log(Chirps);
           callback();          
         });    
       } else {
-        console.log(Chirps);
+        console.log('*** chrome sync not available ***');
         callback();
         return;
       }
     } else {
-      console.log(Chirps);
+      console.log('*** chrome storage not available ***');
       callback();
       return;
     }
   } else {
-    console.log(Chirps);
+    console.log('*** chrome not available ***');
     callback();
     return;
   }
