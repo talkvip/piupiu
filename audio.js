@@ -17,6 +17,7 @@ var ChirpAudio = function(params) {
   this.audio = null;
   this.buffer = null;
   this.script = null;
+  this.mic = null;
   this.noteSamples = Math.round(this.noteDuration * this.sampleRate);
   this.rampSamples = Math.round(this.rampDuration * this.sampleRate);
   this.inSamples = Math.round(this.fadeIn * this.sampleRate);
@@ -93,5 +94,21 @@ var ChirpAudio = function(params) {
   }   
   
   this.buffer.connect(this.script);
-  this.script.connect(this.audio.destination);      
+  this.script.connect(this.audio.destination);  
+  
+  navigator.getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
+  navigator.getUserMedia({audio: true}, function(stream) {
+    var audio = chirpAudio.audio || new (window.AudioContext || window.webkitAudioContext)();
+    var buffer = audio.createBufferSource(stream);
+    var script = audio.createScriptProcessor(4096, 1, 2);
+    script.onaudioprocess = function(event) {
+      var lD = event.outputBuffer.getChannelData(0);
+      var fft = new FFT(4096, chirpAudio.sampleRate);
+      console.log(fft.peakBand);
+    }
+    buffer.connect(script);
+    script.connect(audio.destination);  
+  }, function(err) {
+    console.log(err);
+  });
 }
