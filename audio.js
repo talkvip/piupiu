@@ -103,7 +103,7 @@ var ChirpAudio = function(params) {
     var source = audio.createMediaStreamSource(stream);
     var script = audio.createScriptProcessor(4096, 1, 2);
     script.onaudioprocess = function(event) {
-      var lD = event.outputBuffer.getChannelData(0);
+      var lD = event.inputBuffer.getChannelData(0);
       var fft = new FFT(4096, chirpAudio.sampleRate);
       console.log(lD);
     }
