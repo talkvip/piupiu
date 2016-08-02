@@ -27,6 +27,7 @@ var ChirpAudio = function(params) {
   this.data = '';
   this.phase = 0.0;
   this.volume = 0.25;
+  this.freqTable = {};
   this.freq = 0;
   this.freqTarget = 0;
   this.freqChange = 0.0;
@@ -41,10 +42,27 @@ var ChirpAudio = function(params) {
     var dP = p - iP;
     return this.waveTable[iP] + (dP * (this.waveTable[iP + 1] - this.waveTable[iP]));
   }
+
+  for(var i = 0; i < this.alphabet.length; i++) {
+    this.freqTable[this.alphabet[i]] = this.minFreq * Math.pow(this.noteRatio, i);
+  }
   
   this.charToFreq = function(c) {
-    var note = this.alphabet.indexOf(c);
-    return this.minFreq * Math.pow(this.noteRatio, note);
+    //var note = this.alphabet.indexOf(c);
+    //return this.minFreq * Math.pow(this.noteRatio, note);
+    return this.freqTable[c];
+  }
+
+  this.freqToChar = function(freq) {    
+    var d = this.freqMin;
+    var c = '';
+    for(var i in this.freqTable) {
+      if(Math.abs(this.freqTable[i]) - freq < d) {
+        d = Math.abs(this.freqTable[i]) - freq;
+        c = i;
+      }
+    }
+    return c;
   }
   
   this.play = function(data) {
@@ -109,7 +127,7 @@ var ChirpAudio = function(params) {
       fft.forward(lD);
       if(fft.peakBand != 0) {
         var freq = fft.getBandFrequency(fft.peakBand);
-        if(freq >= chirpAudio.minFreq - chirpAudio.freqError) console.log(freq);
+        if(freq >= chirpAudio.minFreq - chirpAudio.freqError) console.log([freq, chirpAudio.freqToChar(freq)]);
       }
     }
     //buffer.connect(script);
