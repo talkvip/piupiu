@@ -14,7 +14,7 @@ var ChirpAudio = function(params) {
   this.handShake = params.handShake || 'hj';
   this.sampleRate = params.sampleRate || 44100.0;
   this.waveTableSize = 1024;  
-  this.audio = new (window.AudioContext || window.webkitAudioContext)();
+  this.audio = null;
   this.buffer = null;
   this.script = null;
   this.noteSamples = Math.round(this.noteDuration * this.sampleRate);
@@ -28,21 +28,38 @@ var ChirpAudio = function(params) {
   this.freq = 0;
   this.freqTarget = 0;
   this.freqChange = 0.0;
-  
-  if(this.audio.sampleRate) this.sampleRate = parseFloat(this.audio.sampleRate);
-  
+
   this.waveTable = new Array(this.waveTableSize);
   for(var i = 0; i < this.waveTableSize + 2; i++) {
     this.waveTable[i] = Math.sin(Math.PI * 2.0 * i / this.waveTableSize);
   }
   
-  this.audio.createGain();
-  this.buffer = this.audio.createBufferSource();
+  this.interpolate = function(p) {
+    var iP = Math.floor(p);
+    var dP = p - iP;
+    return this.waveTable[iP] + (dP * (this.waveTable[iP + 1] - this.waveTable[iP]));
+  }
   
+  this.charToFreq = function(c) {
+    var note = this.alphabet.indexOf(c);
+    return this.minFreq * Math.pow(this.noteRatio, note);
+  }
+  
+  this.play = function(data) {
+    this.data = this.handShake + data;
+    this.sample = -1;
+    this.index = -1;
+    this.position = -1;
+  }
+  
+  this.audio = new (window.AudioContext || window.webkitAudioContext)();
+  if(this.audio.sampleRate) this.sampleRate = parseFloat(this.audio.sampleRate);
+  this.audio.createGain();
+  this.buffer = this.audio.createBufferSource();  
   this.script = this.audio.createScriptProcessor(4096, 1, 2);
-  this.script.parent = this;
+  this.script.parent = this;    
+  
   this.script.onaudioprocess = function(event) {
-    if(this.parent.sample == -1) console.log(this.parent);
     var lD = event.outputBuffer.getChannelData(0);
     var rD = event.outputBuffer.getChannelData(1);
     var cA = 0.0;
@@ -73,26 +90,8 @@ var ChirpAudio = function(params) {
         rD[i] = 0;
       }
     }    
-  }  
+  }   
   
   this.buffer.connect(this.script);
-  this.script.connect(this.audio.destination);
-  
-  this.interpolate = function(p) {
-    var iP = Math.floor(p);
-    var dP = p - iP;
-    return this.waveTable[iP] + (dP * (this.waveTable[iP + 1] - this.waveTable[iP]));
-  }
-  
-  this.charToFreq = function(c) {
-    var note = this.alphabet.indexOf(c);
-    return this.minFreq * Math.pow(this.noteRatio, note);
-  }
-  
-  this.play = function(data) {
-    this.data = this.handShake + data;
-    this.sample = -1;
-    this.index = -1;
-    this.position = -1;
-  }
+  this.script.connect(this.audio.destination);      
 }
