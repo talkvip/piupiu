@@ -106,9 +106,9 @@ var ChirpAudio = function(params) {
       var lD = event.inputBuffer.getChannelData(0);
       var fft = new FFT(lD.length, chirpAudio.sampleRate);
       fft.forward(lD);
-      if(fft.peak != 0) {
-        console.log([fft.peak, fft.peakBand]);
-        console.log(fft.getBandFrequency(fft.peakBand));
+      if(fft.peakBand != 0) {
+        var freq = fft.getBandFrequency(fft.peakBand);
+        if(freq >= chirpAudio.minFreq) console.log(freq);
       }
     }
     //buffer.connect(script);
