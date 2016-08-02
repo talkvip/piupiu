@@ -1,3 +1,4 @@
+var chirpAudio = new ChirpAudio();
 var piupiu = new PIUPIU();
 var chirp = new Chirp();
 
