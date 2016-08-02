@@ -48,8 +48,6 @@ var ChirpAudio = function(params) {
   }
   
   this.charToFreq = function(c) {
-    //var note = this.alphabet.indexOf(c);
-    //return this.minFreq * Math.pow(this.noteRatio, note);
     return this.freqTable[c];
   }
 
@@ -61,6 +59,10 @@ var ChirpAudio = function(params) {
         d = Math.abs(this.freqTable[i]) - freq;
         c = i;
       }
+    }
+    if(d > this.freqError) {
+      console.log(['Not in alphabet', freq, freq + d, freq - d, d]);
+      return '';
     }
     return c;
   }
