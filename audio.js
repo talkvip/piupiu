@@ -105,6 +105,7 @@ var ChirpAudio = function(params) {
     script.onaudioprocess = function(event) {
       var lD = event.inputBuffer.getChannelData(0);
       var fft = new FFT(lD.length, chirpAudio.sampleRate);
+      fft.forward(lD);
       console.log(fft.peak);
     }
     //buffer.connect(script);
