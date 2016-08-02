@@ -52,11 +52,11 @@ var ChirpAudio = function(params) {
   }
 
   this.freqToChar = function(freq) {    
-    var d = this.freqMin;
+    var d = this.minFreq;
     var c = '';
     for(var i in this.freqTable) {
-      if(Math.abs(this.freqTable[i]) - freq < d) {
-        d = Math.abs(this.freqTable[i]) - freq;
+      if(Math.abs(this.freqTable[i] - freq) < d) {
+        d = Math.abs(this.freqTable[i] - freq);
         c = i;
       }
     }
