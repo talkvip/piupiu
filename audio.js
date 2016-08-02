@@ -4,7 +4,6 @@ var ChirpAudio = function(params) {
   params = params || {};
   this.alphabet = params.alphabet || '0123456789abcdefghijklmnopqrstuv';
   this.minFreq = params.minFreq || 1760.0;
-  this.freqError = params.freqError || 50;
   this.noteRatio = params.noteRatio || 1.0594630943591;
   this.noteDuration = params.noteDuration || 0.0872;
   this.rampDuration = params.rampDuration || 0.008;
@@ -15,10 +14,9 @@ var ChirpAudio = function(params) {
   this.handShake = params.handShake || 'hj';
   this.sampleRate = params.sampleRate || 44100.0;
   this.waveTableSize = 1024;  
-  this.audio = null;
+  this.audio = new (window.AudioContext || window.webkitAudioContext)();
   this.buffer = null;
   this.script = null;
-  this.mic = null;
   this.noteSamples = Math.round(this.noteDuration * this.sampleRate);
   this.rampSamples = Math.round(this.rampDuration * this.sampleRate);
   this.inSamples = Math.round(this.fadeIn * this.sampleRate);
@@ -31,57 +29,25 @@ var ChirpAudio = function(params) {
   this.freq = 0;
   this.freqTarget = 0;
   this.freqChange = 0.0;
-
-  this.waveTable = new Array(this.waveTableSize);
-  for(var i = 0; i < this.waveTableSize + 2; i++) {
-    this.waveTable[i] = Math.sin(Math.PI * 2.0 * i / this.waveTableSize);
-  }
   
-  this.interpolate = function(p) {
-    var iP = Math.floor(p);
-    var dP = p - iP;
-    return this.waveTable[iP] + (dP * (this.waveTable[iP + 1] - this.waveTable[iP]));
-  }
+  if(this.audio.sampleRate) this.sampleRate = parseFloat(this.audio.sampleRate);
 
   for(var i = 0; i < this.alphabet.length; i++) {
     this.freqTable[this.alphabet[i]] = this.minFreq * Math.pow(this.noteRatio, i);
   }
   
-  this.charToFreq = function(c) {
-    return this.freqTable[c];
-  }
-
-  this.freqToChar = function(freq) {    
-    var d = this.minFreq;
-    var c = '';
-    for(var i in this.freqTable) {
-      if(Math.abs(this.freqTable[i] - freq) < d) {
-        d = Math.abs(this.freqTable[i] - freq);
-        c = i;
-      }
-    }
-    if(d > this.freqError) {
-      console.log(['Not in alphabet', freq, freq + d, freq - d, d]);
-      return '';
-    }
-    return c;
+  this.waveTable = new Array(this.waveTableSize);
+  for(var i = 0; i < this.waveTableSize + 2; i++) {
+    this.waveTable[i] = Math.sin(Math.PI * 2.0 * i / this.waveTableSize);
   }
   
-  this.play = function(data) {
-    this.data = this.handShake + data;
-    this.sample = -1;
-    this.index = -1;
-    this.position = -1;
-  }
-  
-  this.audio = new (window.AudioContext || window.webkitAudioContext)();
-  if(this.audio.sampleRate) this.sampleRate = parseFloat(this.audio.sampleRate);
   this.audio.createGain();
-  this.buffer = this.audio.createBufferSource();  
-  this.script = this.audio.createScriptProcessor(4096, 1, 2);
-  this.script.parent = this;    
+  this.buffer = this.audio.createBufferSource();
   
+  this.script = this.audio.createScriptProcessor(4096, 1, 2);
+  this.script.parent = this;
   this.script.onaudioprocess = function(event) {
+    if(this.parent.sample == -1) console.log(this.parent);
     var lD = event.outputBuffer.getChannelData(0);
     var rD = event.outputBuffer.getChannelData(1);
     var cA = 0.0;
@@ -112,10 +78,44 @@ var ChirpAudio = function(params) {
         rD[i] = 0;
       }
     }    
-  }   
+  }  
   
   this.buffer.connect(this.script);
-  this.script.connect(this.audio.destination);  
+  this.script.connect(this.audio.destination);
+  
+  this.interpolate = function(p) {
+    var iP = Math.floor(p);
+    var dP = p - iP;
+    return this.waveTable[iP] + (dP * (this.waveTable[iP + 1] - this.waveTable[iP]));
+  }
+  
+  this.charToFreq = function(c) {
+    var note = this.alphabet.indexOf(c);
+    return this.minFreq * Math.pow(this.noteRatio, note);
+  }
+
+  this.freqToChar = function(freq) {    
+    var d = this.minFreq;
+    var c = '';
+    for(var i in this.freqTable) {
+      if(Math.abs(this.freqTable[i] - freq) < d) {
+        d = Math.abs(this.freqTable[i] - freq);
+        c = i;
+      }
+    }
+    if(d > this.freqError) {
+      //console.log(['Not in alphabet', freq, freq + d, freq - d, d]);
+      return '';
+    }
+    return c;
+  }
+  
+  this.play = function(data) {
+    this.data = this.handShake + data;
+    this.sample = -1;
+    this.index = -1;
+    this.position = -1;
+  }
   
   navigator.getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
   navigator.getUserMedia({audio: true}, function(stream) {
@@ -137,5 +137,5 @@ var ChirpAudio = function(params) {
     script.connect(audio.destination);  
   }, function(err) {
     console.log(err);
-  });
+  });  
 }
