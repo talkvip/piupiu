@@ -104,8 +104,8 @@ var ChirpAudio = function(params) {
     var script = audio.createScriptProcessor(4096, 1, 2);
     script.onaudioprocess = function(event) {
       var lD = event.inputBuffer.getChannelData(0);
-      var fft = new FFT(4096, chirpAudio.sampleRate);
-      if(fft.peakBand != 0) console.log([fft.peak, fft.peakBand]);
+      var fft = new FFT(lD.length, chirpAudio.sampleRate);
+      console.log(fft.peak);
     }
     //buffer.connect(script);
     source.connect(script);
