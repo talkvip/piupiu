@@ -4,6 +4,7 @@ var ChirpAudio = function(params) {
   params = params || {};
   this.alphabet = params.alphabet || '0123456789abcdefghijklmnopqrstuv';
   this.minFreq = params.minFreq || 1760.0;
+  this.freqError = params.freqError || 50;
   this.noteRatio = params.noteRatio || 1.0594630943591;
   this.noteDuration = params.noteDuration || 0.0872;
   this.rampDuration = params.rampDuration || 0.008;
