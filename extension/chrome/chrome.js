@@ -1,24 +1,28 @@
 var piupiu = new PIUPIU();
 var chirp = new Chirp();
 
+function showError(err, u, l) {
+  document.body.innerText = '';
+  var div = document.createElement('div');
+  div.setAttribute('class', 'chrome-menu');
+  div.setAttribute('style', 'width: 100% !important;');
+  div.innerText = u.substring(u.lastIndexOf('/') + 1) + '[' + l + '] ' + err;
+  document.body.appendChild(div);
+}
+
 window.addEventListener('load', function(event) {
 
   window.onerror = function(err, u, l) {
-		document.body.innerText = '';
-	  var div = document.createElement('div');
-		div.setAttribute('class', 'chrome-menu');
-		div.setAttribute('style', 'width: 100% !important;');
-		div.innerText = u.substring(u.lastIndexOf('/') + 1) + '[' + l + '] ' + err;
-		document.body.appendChild(div);
+    showError(err, u, l);
 		return false;
   }
   
 	var h = decodeURIComponent(new String(location.hash).substring(1));
-	console.log(h);
+	//console.log(h);
 	var data = {};
 	if(h != '') data = JSON.parse(h);
 	if(typeof data != 'object' || data == null) data = {};
-	console.log(data);
+	//console.log(data);
 	if(('title' in data) && ('url' in data)) {
 		document.body.innerText = '';
 	  var div = document.createElement('div');
@@ -35,7 +39,7 @@ window.addEventListener('load', function(event) {
 		document.body.appendChild(div);
 		try {
       if('image' in data) {
-        console.log(data.url.indexOf('data:'));
+        //console.log(data.url.indexOf('data:'));
         if(data.url.indexOf('data:') == 0) { // data URI
           var blob = piupiu.dataURItoBlob(data.url);
           //console.log(blob);
@@ -88,7 +92,7 @@ window.addEventListener('load', function(event) {
       chirp.create({title: data.title, url: data.url}, 'newChirpClose');
       return;		
 		}
-		if(data.url.indexOf('http://piupiu.ml/#') == 0) {
+		if(data.url.indexOf(piupiu.old_url) == 0 || data.url.indexOf(piupiu.url) == 0) {
       chirp.create({title: data.title, url: data.url}, 'newChirpClose');
       return;
 		} else {
@@ -192,13 +196,13 @@ function showCard(data) {
 	div.setAttribute('class', 'card-content');
 	div.setAttribute('style', 'margin-top: 5px; word-wrap: break-word; text-overflow: ellipsis;');
 	var url = data.url;
-	if(url.indexOf('http://piupiu.ml/#') == 0) {
-	  var parts = url.replace('http://piupiu.ml/#', '').split(':');
+	if(url.indexOf(piupiu.old_url) == 0 || url.indexOf(piupiu.url) == 0) {
+	  var parts = url.replace(piupiu.old_url, '').replace(piupiu.url, '').split(':');
 	  if(parts.length > 1) {
 	    if(parts[0] == '') {
-  	    url = decodeURIComponent(url.replace('http://piupiu.ml/#', '').substring(1));
+  	    url = decodeURIComponent(url.replace(piupiu.old_url, '').replace(piupiu.url, '').substring(1));
 	    } else {
-  	    url = decodeURIComponent(url.replace('http://piupiu.ml/#', ''));
+  	    url = decodeURIComponent(url.replace(piupiu.old_url, '').replace(piupiu.url, ''));
 	    }
 	  }
 	}
@@ -210,10 +214,10 @@ function showCard(data) {
 	    img.src = data.url;
 	    div.appendChild(img);
 	  } else {
-	    div.innerText = url;
+	    div.innerText = url.replace(piupiu.url, piupiu.old_url);
 	  }
 	} else {
-	  div.innerText = url;
+	  div.innerText = url.replace(piupiu.url, piupiu.old_url);
 	}
   parent.appendChild(div);
 	var btn = document.createElement('div');
@@ -244,9 +248,9 @@ function showCard(data) {
 
 function newChirp(data) {
 	document.getElementById('chirp-url').className = document.getElementById('chirp-url').className.replace(' loading', '');
-	console.log(data);
+	//console.log(data);
 	if('error' in data) {
-		alert(data.error.msg + '(Invalid URL?)');
+    showError(data.error.msg + '(Invalid URL?)', 'newChirp', 0);
 	} else {
 		data.obj.play();
 		loadCards();
@@ -254,9 +258,9 @@ function newChirp(data) {
 }
 
 function newChirpClose(data) {
-	console.log(data);
+	//console.log(data);
 	if('error' in data) {
-		alert(data.error.msg + '(Invalid URL?)');
+    showError(data.error.msg + '(Invalid URL?)', 'newChirpClose', 0);
 		window.close();
 	} else {
 		data.obj.play();
@@ -265,4 +269,3 @@ function newChirpClose(data) {
 		}, 4000);
 	}
 }
-  

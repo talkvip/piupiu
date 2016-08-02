@@ -8,6 +8,7 @@
   <script type="text/javascript" src="meteor-sonicnetjs/sonic-server.js"></script>
   <script type="text/javascript" src="meteor-sonicnetjs/sonic-socket.js"></script>
   <script type="text/javascript" src="JSON-js/json2.js"></script>
+  <script type="text/javascript" src="audio.js"></script>
   <script type="text/javascript" src="piupiu.js"></script>
   <script type="text/javascript" src="chirp.js"></script>
 </head>
@@ -31,6 +32,8 @@
   var button = document.querySelector('#message');
   button.addEventListener('click', onButton);
  
+  var chirpAudio = new ChirpAudio();
+  var piupiu = new PIUPIU();
   var chirp = new Chirp();
   
   console.log(chirp);
@@ -44,9 +47,8 @@
     }
   }
   
-  var piupiu = new PIUPIU();
-
   function onButton() {
+    console.log(chirpAudio);
     var a = document.createElement('a');
     a.href = document.querySelector('#url').value;
     if(document.querySelector('#title').value == '') document.querySelector('#title').value = a.hostname;

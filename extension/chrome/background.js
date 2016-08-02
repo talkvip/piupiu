@@ -1,5 +1,7 @@
 /* background.js */
 
+var PIUPIU_url = 'http://piupiu.ml/?';
+
 function share(data) {
   var popupUrl = 'popup.html#' + encodeURIComponent('{"title":"' + data.title.replace(/"/g, '\\"') + '","url":"' + data.url.replace(/"/g, '\\"') + '"' + (('image' in data && data.image)?',"image":true':'') + '}');
   if(chrome.windows) {
@@ -72,12 +74,12 @@ var shareLinkMenu = chrome.contextMenus.create({parentId: mainMenu, title: chrom
       title = url;
     }
   }
-  if(url.indexOf('http:') != 0 && url.indexOf('https:')) url = 'http://piupiu.ml/#' + url;
+  if(url.indexOf('http:') != 0 && url.indexOf('https:')) url = PIUPIU_url + url;
   share({title: title, url: url});
 }});
 
 var shareTextMenu = chrome.contextMenus.create({parentId: mainMenu, title: chrome.i18n.getMessage('shareText'), contexts: ['selection'], onclick: function(info) {
-  var url = 'http://piupiu.ml/#:' + encodeURIComponent(info.selectionText).replace(/\%20/g, ' ');
+  var url = PIUPIU_url + ':' + encodeURIComponent(info.selectionText).replace(/\%20/g, ' ');
   share({title: info.selectionText, url: url});
 }});
 

@@ -2,6 +2,8 @@
 
 PIUPIU = function() {
 
+  this.old_url = 'http://piupiu.ml/#';
+  this.url = 'http://piupiu.ml/?';
   this.shortenURL_Callback = null;
   this.shortenURL_Id = null;
   
@@ -87,7 +89,7 @@ PIUPIU = function() {
 		if('shorturl' in r) {
 			var https = new String('https://');
 			if(r.shorturl.indexOf(https) == 0) r.shorturl = 'http://' + r.shorturl.substring(https.length);
-			r.shorturl = r.shorturl.replace('http://is.gd/', 'http://piupiu.ml/#');
+			r.shorturl = r.shorturl.replace('http://is.gd/', this.url);
 		}
 		this.shortenURL_Callback(r);
 		this.unloadScript(this.shortenURL_Id);

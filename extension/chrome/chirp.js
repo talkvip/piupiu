@@ -6,135 +6,53 @@ function Chirp_getResponse(data) {
   if(typeof data != 'object') data = {};
   if('callback' in data) var fn = window[data.callback];       
   if('error' in data) {
-    console.log(data.error.msg);
+    //console.log(data.error.msg);
     if(typeof fn == 'function') fn(data);
     return;
   }
   if(('title' in data) && ('url' in data)) {
-    var chirp = {};
+    var obj = {};
     if('longcode' in data) {
       window.localStorage.setItem('$chirp-' + data.longcode, JSON.stringify(data));
       if(chrome) {
         if('storage' in chrome) {
           if('sync' in chrome.storage) {
-            chirp['$chirp-' + data.longcode] = JSON.stringify(data);
-            chrome.storage.sync.set(chirp, function() {});
+            obj['$chirp-' + data.longcode] = JSON.stringify(data);
+            chrome.storage.sync.set(obj, function() {});
           }
         }
       }
     }
     if(data.url in Chirps) {
-      chirp = Chirps[data.url];
+      obj = Chirps[data.url];
     } else { // chirp.io changed the URL !!!
       if('debug' in data) {
         for(var i in data.debug) {
           if('operation' in data.debug[i]) {
             if(data.debug[i].operation.indexOf('resolve_url(') == 0) {
               data.orig = data.debug[i].operation.substring(12, data.debug[i].operation.length - 1);
-              console.log(data.orig);
-              chirp = Chirps[data.orig];
+              //console.log(data.orig);
+              obj = Chirps[data.orig];
             }
           }
         }
       }
     }
     chirp.data = data;
-    data.obj = chirp;
-    console.log(chirp);
-    console.log(data);
+    data.obj = obj;
+    //console.log(obj);
+    //console.log(data);
     if(typeof fn == 'function') fn(data);
   }
 }
 
 Chirp = function() {
-
-	this.piupiu = new PIUPIU();
-
   this.data = {};
-  
-  this.freqTable = {};
-  
-  this.charTable = {};
-    
-  this.coder = new SonicCoder({
-    freqMin: 1760.0,
-    freqMax: 10500.0
-  });
-  
-  this.coder.startChar = 'h';
-  this.coder.alphabet = '0123456789abcdefghijklmnopqrstuv';
-  
-  var fundamental = this.coder.freqMin;  
-  var noteratio = 1.0594630943591;
-  for(var i = 0; i < this.coder.alphabet.length; i++) {
-    this.charTable[this.coder.alphabet.charAt(i)] = fundamental * Math.pow(noteratio, i);
-    this.freqTable[fundamental * Math.pow(noteratio, i)] = this.coder.alphabet.charAt(i);
-  }  
-  
-  this.coder.chirp = this;
-  
-  this.coder.charToFreq = function(char) {
-    if(!(char in this.chirp.charTable)) {
-      console.error(char, 'is an invalid character.');
-      return 0;    
-    } 
-	  return this.chirp.charTable[char]; 
-	};
-
-  this.coder.freqToChar = function(freq) {
-    var diff = this.freqError;
-    var index = -1;
-    for(var i in this.chirp.freqTable) {
-      if(Math.abs(freq - parseFloat(i)) < diff) {
-        index = parseFloat(i);
-        diff = Math.abs(freq - parseFloat(i));
-      }
-    }
-    if(index == -1) {
-      //console.error(freq, 'is an invalid frequency.');
-      return '';    
-    }
-    return this.chirp.freqTable[index];
-	};
-	
-  this.socket = new SonicSocket({
-    coder: {},
-    charDuration: 0.0872,
-    rampDuration: 0.008
-  });  
-  
-  this.socket.coder = this.coder;
-    
-  this.socket.scheduleToneAt = function(freq, startTime, duration) {
-    var gainNode = audioContext.createGain();
-
-    startTime += 1.0;
-
-    // Gain => Merger
-    gainNode.gain.value = 0;
-
-    gainNode.gain.setValueAtTime(0.0, startTime);
-    gainNode.gain.linearRampToValueAtTime(0.15, startTime + this.rampDuration);
-    gainNode.gain.setValueAtTime(0.15, startTime + duration - this.rampDuration);
-    gainNode.gain.linearRampToValueAtTime(0.0, startTime + duration);
-    
-    gainNode.connect(audioContext.destination);
-
-    var osc = audioContext.createOscillator();
-    osc.frequency.value = freq;
-    osc.connect(gainNode);
-
-    if (this.onsend && typeof this.onsend == "function")
-      osc.onended = this.onsend;
-
-    osc.start(startTime);
-    osc.stop(startTime+duration);
-  };
 }
 
 Chirp.prototype.create = function(data, callback) {
   if(typeof data != 'object') data = {};
-  console.log(data);
+  //console.log(data);
   var fn = window[callback];   
   if(('title' in data) && ('url' in data)) {
     if(data.url in Chirps) {
@@ -148,18 +66,18 @@ Chirp.prototype.create = function(data, callback) {
     this.data = data;
     Chirps[data.url] = this;
     data.callback = callback;
-    console.log(data);
+    //console.log(data);
     var script = 'https://piupiuml.alwaysdata.net/chirp.php?data=' + encodeURIComponent(JSON.stringify(data)) + '&callback=Chirp_getResponse';
-    console.log(script);
-    var jsonp = this.piupiu.loadScript(script);
-    setTimeout(function() { this.piupiu.unloadScript(jsonp); }, 5000);
+    //console.log(script);
+    var jsonp = piupiu.loadScript(script);
+    setTimeout(function() { piupiu.unloadScript(jsonp); }, 5000);
   } else {
     if(typeof fn == 'function') fn({err: 'Missing required argument title/url'});
   }
 }
 
 Chirp.prototype.play = function() {
-  this.socket.send('hj' + this.data.longcode);
+  chirpAudio.play(this.data.longcode);
 }
 
 Chirp.prototype.load = function(callback) {
@@ -177,8 +95,8 @@ Chirp.prototype.load = function(callback) {
     }
   }
 
-	console.log('*** localstorage ***');	
-	console.log(Chirps);
+	//console.log('*** localstorage ***');	
+	//console.log(Chirps);
 
   if(chrome) {
     if('storage' in chrome) {
@@ -197,22 +115,22 @@ Chirp.prototype.load = function(callback) {
               }
             }
           }
-          console.log('*** chrome sync ***');
-          console.log(Chirps);
+          //console.log('*** chrome sync ***');
+          //console.log(Chirps);
           callback();          
         });    
       } else {
-        console.log('*** chrome sync not available ***');
+        //console.log('*** chrome sync not available ***');
         callback();
         return;
       }
     } else {
-      console.log('*** chrome storage not available ***');
+      //console.log('*** chrome storage not available ***');
       callback();
       return;
     }
   } else {
-    console.log('*** chrome not available ***');
+    //console.log('*** chrome not available ***');
     callback();
     return;
   }
