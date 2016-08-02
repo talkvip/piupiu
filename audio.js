@@ -98,15 +98,17 @@ var ChirpAudio = function(params) {
   
   navigator.getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
   navigator.getUserMedia({audio: true}, function(stream) {
-    var audio = chirpAudio.audio || new (window.AudioContext || window.webkitAudioContext)();
-    var buffer = audio.createBufferSource(stream);
+    var audio = new (window.AudioContext || window.webkitAudioContext)(); //chirpAudio.audio || 
+    //var buffer = audio.createBufferSource(stream);
+    var source = audio.createMediaStreamSource(stream);
     var script = audio.createScriptProcessor(4096, 1, 2);
     script.onaudioprocess = function(event) {
       var lD = event.outputBuffer.getChannelData(0);
       var fft = new FFT(4096, chirpAudio.sampleRate);
       console.log(lD);
     }
-    buffer.connect(script);
+    //buffer.connect(script);
+    source.connect(script);
     script.connect(audio.destination);  
   }, function(err) {
     console.log(err);
