@@ -124,20 +124,24 @@ var ChirpAudio = function(params) {
     //var buffer = audio.createBufferSource(stream);
     var source = audio.createMediaStreamSource(stream);
     var analyser = audio.createAnalyser(source);
-    analyser.fftSize = 4096;
+    analyser.fftSize = 512;
     var bufferSize = analyser.frequencyBinCount;
     var buffer = new Uint8Array(bufferSize);
+    chirpAudio.buffer = [];
     function analyse() {
-      requestAnimationFrame(analyse);
       analyser.getByteFrequencyData(buffer);
       var max = Math.max.apply(null, buffer);
       var freq = max * chirpAudio.sampleRate / analyser.fftSize;
       var c = chirpAudio.freqToChar(freq);
-      if(c != '') console.log([max, freq, c]);
+      if(c != '') chirpAudio.buffer.push([max, freq, c]);
+      requestAnimationFrame(analyse);
     }
-    analyse();
+    requestAnimationFrame(analyse);
     source.connect(analyser);
     //analyser.connect(audio.destination);  
+    setInterval(function() {
+      console.log(chirpAudio.buffer);
+    }, 1000);
   }, function(err) {
     console.log(err);
   });  
