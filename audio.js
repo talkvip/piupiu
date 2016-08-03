@@ -124,15 +124,10 @@ var ChirpAudio = function(params) {
     //var buffer = audio.createBufferSource(stream);
     var source = audio.createMediaStreamSource(stream);
     var script = audio.createScriptProcessor(4096, 1, 1);
-    script.buffer = [];
     script.onaudioprocess = function(event) {
       var lD = event.inputBuffer.getChannelData(0);
-      this.buffer = this.buffer.concat(lD);
-      var samples = Math.pow(2, Math.ceil(Math.log(chirpAudio.noteSamples)/Math.log(2)));
-      var fft = new FFT(samples, chirpAudio.sampleRate);
-      var buffer = this.buffer.slice(0, samples);
-      fft.forward(buffer);
-      this.buffer = this.buffer.slice(4096);
+      var fft = new FFT(lD.length, chirpAudio.sampleRate);
+      fft.forward(lD);
       if(fft.peakBand != 0) {
         var freq = fft.getBandFrequency(fft.peakBand);
         if(freq >= chirpAudio.minFreq - chirpAudio.freqError) console.log([freq, chirpAudio.freqToChar(freq)]);
