@@ -131,8 +131,9 @@ var ChirpAudio = function(params) {
       requestAnimationFrame(analyse);
       analyser.getByteFrequencyData(buffer);
       var max = Math.max.apply(null, buffer);
-      var freq = chirpAudio.sampleRate / analyser.fftSize;     
-      console.log([max, freq]);
+      var freq = max * chirpAudio.sampleRate / analyser.fftSize;
+      var c = chirpAudio.freqToChar(freq);
+      if(c != '') console.log([max, freq, c]);
     }
     analyse();
     source.connect(analyser);
