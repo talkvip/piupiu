@@ -124,6 +124,7 @@ var ChirpAudio = function(params) {
     //var buffer = audio.createBufferSource(stream);
     var source = audio.createMediaStreamSource(stream);
     var script = audio.createScriptProcessor(4096, 1, 2);
+    script.buffer = [];
     script.onaudioprocess = function(event) {
       var lD = event.inputBuffer.getChannelData(0);
       this.buffer = this.buffer.concat(lD);
