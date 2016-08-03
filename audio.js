@@ -123,29 +123,18 @@ var ChirpAudio = function(params) {
     var audio = new (window.AudioContext || window.webkitAudioContext)(); //chirpAudio.audio || 
     //var buffer = audio.createBufferSource(stream);
     var source = audio.createMediaStreamSource(stream);
-    var script = audio.createScriptProcessor(4096, 1, 2);
-    script.buffer = new Float32Array();
-    script.onaudioprocess = function(event) {
-      var lD = event.inputBuffer.getChannelData(0);
-      var buffer = new Float32Array(this.buffer.length + 4096);
-      buffer.set(this.buffer);
-      buffer.subarray(this.buffer.length, this.buffer.length + 4096).set(lD);
-      this.buffer = buffer;
-      buffer = this.buffer.slice(0, 4096);
-      var fft = new FFT(buffer.length, chirpAudio.sampleRate);
-      fft.forward(buffer);
-      this.buffer = this.buffer.slice(chirpAudio.noteSamples);
-      if(fft.peakBand != 0) {
-        var freq = fft.getBandFrequency(fft.peakBand);
-        if(freq >= chirpAudio.minFreq - chirpAudio.freqError) {
-          var char = chirpAudio.freqToChar(freq);
-          if(char != '') console.log([freq, char]);
-        }
-      }
+    var analyser = audio.createAnalyser(source);
+    analyser.fftSize = 8192;
+    var bufferSize = analyser.frequencyBinCount;
+    var buffer = new Uint8Array(bufferSize);
+    function analyse() {
+      requestAnimationFrame(analyse);
+      analyser.getByteFrequencyData(buffer);    
+      console.log(buffer);
     }
-    //buffer.connect(script);
-    source.connect(script);
-    script.connect(audio.destination);  
+    analyse();
+    source.connect(analyser);
+    analyser.connect(audio.destination);  
   }, function(err) {
     console.log(err);
   });  
