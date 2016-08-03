@@ -130,11 +130,9 @@ var ChirpAudio = function(params) {
     function analyse() {
       requestAnimationFrame(analyse);
       analyser.getByteFrequencyData(buffer);
-      buffer = buffer.map(function(v) {
-        v = v * chirpAudio.sampleRate / analyser.fftSize;
-        return v;
-      });
-      console.log(buffer);
+      var max = Math.max.apply(null, buffer);
+      var freq = chirpAudio.sampleRate / analyser.fftSize;     
+      console.log([max, freq]);
     }
     analyse();
     source.connect(analyser);
