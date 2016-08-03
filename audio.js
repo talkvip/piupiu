@@ -128,8 +128,7 @@ var ChirpAudio = function(params) {
     script.onaudioprocess = function(event) {
       var lD = event.inputBuffer.getChannelData(0);
       this.buffer = this.buffer.concat(lD);
-      var samples = chirpAudio.noteSamples;
-      if(samples % 2 != 0) samples++;
+      var samples = Math.pow(2, Math.ceil(Math.log(chirpAudio.noteSamples)/Math.log(2)));
       var fft = new FFT(samples, chirpAudio.sampleRate);
       var buffer = this.buffer.slice(0, samples);
       fft.forward(buffer);
