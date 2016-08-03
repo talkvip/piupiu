@@ -134,7 +134,7 @@ var ChirpAudio = function(params) {
     }
     analyse();
     source.connect(analyser);
-    analyser.connect(audio.destination);  
+    //analyser.connect(audio.destination);  
   }, function(err) {
     console.log(err);
   });  
