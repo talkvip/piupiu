@@ -123,14 +123,21 @@ var ChirpAudio = function(params) {
     var audio = new (window.AudioContext || window.webkitAudioContext)(); //chirpAudio.audio || 
     //var buffer = audio.createBufferSource(stream);
     var source = audio.createMediaStreamSource(stream);
-    var script = audio.createScriptProcessor(4096, 1, 1);
+    var script = audio.createScriptProcessor(4096, 1, 2);
+    script.buffer = [];
     script.onaudioprocess = function(event) {
       var lD = event.inputBuffer.getChannelData(0);
-      var fft = new FFT(lD.length, chirpAudio.sampleRate);
-      fft.forward(lD);
+      this.buffer = this.buffer.concat(lD);
+      var buffer = this.buffer.slice(0, 4096);
+      var fft = new FFT(buffer.length, chirpAudio.sampleRate);
+      fft.forward(buffer);
+      this.buffer = this.buffer.slice(0, chirpAudio.noteSamples);
       if(fft.peakBand != 0) {
         var freq = fft.getBandFrequency(fft.peakBand);
-        if(freq >= chirpAudio.minFreq - chirpAudio.freqError) console.log([freq, chirpAudio.freqToChar(freq)]);
+        if(freq >= chirpAudio.minFreq - chirpAudio.freqError) {
+          var char = chirpAudio.freqToChar(freq);
+          if(char != '') console.log([freq, char]);
+        }
       }
     }
     //buffer.connect(script);
