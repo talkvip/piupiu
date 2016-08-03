@@ -124,12 +124,16 @@ var ChirpAudio = function(params) {
     //var buffer = audio.createBufferSource(stream);
     var source = audio.createMediaStreamSource(stream);
     var analyser = audio.createAnalyser(source);
-    analyser.fftSize = 8192;
+    analyser.fftSize = 4096;
     var bufferSize = analyser.frequencyBinCount;
     var buffer = new Uint8Array(bufferSize);
     function analyse() {
       requestAnimationFrame(analyse);
-      analyser.getByteFrequencyData(buffer);    
+      analyser.getByteFrequencyData(buffer);
+      buffer = buffer.map(function(v) {
+        v = v * chirpAudio.sampleRate / analyser.fftSize;
+        return v;
+      });
       console.log(buffer);
     }
     analyse();
