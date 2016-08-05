@@ -2,6 +2,19 @@
 
 var PIUPIU_url = 'http://piupiu.ml/?';
 
+navigator.getUserMedia = (navigator.getUserMedia ||
+                          navigator.webkitGetUserMedia ||
+                          navigator.mozGetUserMedia || 
+                          navigator.msGetUserMedia);  
+
+if(navigator.getUserMedia) {
+  // Request the microphone
+  navigator.getUserMedia({audio:true}, function() {
+  }, function() {
+    chrome.windows.create({type: 'popup', url: 'popup.html#mic', width: 300, height: 100});  
+  });
+}
+
 function share(data) {
   var popupUrl = 'popup.html#' + encodeURIComponent('{"title":"' + data.title.replace(/"/g, '\\"') + '","url":"' + data.url.replace(/"/g, '\\"') + '"' + (('image' in data && data.image)?',"image":true':'') + '}');
   if(chrome.windows) {

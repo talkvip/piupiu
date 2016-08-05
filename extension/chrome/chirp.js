@@ -98,7 +98,7 @@ Chirp.prototype.load = function(callback) {
 	//console.log('*** localstorage ***');	
 	//console.log(Chirps);
 
-  if(chrome) {
+  if(typeof chrome != 'undefined') {
     if('storage' in chrome) {
       if('sync' in chrome.storage) {
         chrome.storage.sync.get(null, function(items) {

@@ -30,6 +30,7 @@ var ChirpAudio = function(params) {
   this.freq = 0;
   this.freqTarget = 0;
   this.freqChange = 0.0;
+  this.onReceive = params.onReceive || null;
   
   if(this.audio.sampleRate) this.sampleRate = parseFloat(this.audio.sampleRate);
 
@@ -118,31 +119,109 @@ var ChirpAudio = function(params) {
     this.position = -1;
   }
   
-  navigator.getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
-  navigator.getUserMedia({audio: true}, function(stream) {
-    var audio = new (window.AudioContext || window.webkitAudioContext)(); //chirpAudio.audio || 
-    //var buffer = audio.createBufferSource(stream);
-    var source = audio.createMediaStreamSource(stream);
-    var analyser = audio.createAnalyser(source);
-    analyser.fftSize = 512;
-    var bufferSize = analyser.frequencyBinCount;
-    var buffer = new Uint8Array(bufferSize);
-    chirpAudio.buffer = [];
-    function analyse() {
-      analyser.getByteFrequencyData(buffer);
-      var max = Math.max.apply(null, buffer);
-      var freq = max * chirpAudio.sampleRate / analyser.fftSize;
-      var c = chirpAudio.freqToChar(freq);
-      if(c != '') chirpAudio.buffer.push([max, freq, c]);
-      requestAnimationFrame(analyse);
+  /* receive chirps */
+  
+  var proc = 0;
+  var timedBuffer = [];
+  var minFreq = this.minFreq;
+  var onReceiveCallback = this.onReceive;
+  
+  var mic = new Microphone({notes: this.freqTable, callback: function micCallback(ev) {
+    console.log(ev);
+    if('error' in ev) {
+      document.getElementById('debug').innerText = ev.error;
     }
-    requestAnimationFrame(analyse);
-    source.connect(analyser);
-    //analyser.connect(audio.destination);  
-    setInterval(function() {
-      console.log(chirpAudio.buffer);
-    }, 1000);
-  }, function(err) {
-    console.log(err);
-  });  
+    if(ev.event == 'gotstream') {
+      mic.startListening();
+    }
+    if(ev.event == 'listening') {
+      analyse();
+    }
+  }});
+  
+  mic.initialize();
+
+  function analyse() {
+    proc = requestAnimationFrame(analyse);
+    var freq = mic.getFreq(2);
+    var note = mic.getNote(2);
+    if(freq >= minFreq - 100) {
+      timedBuffer['_' + new Date().getTime()] = note;
+      if(note == 'h') {
+        setTimeout(function() {
+          cancelAnimationFrame(proc);
+          analyseBuffer();
+          mic.stopListening();
+        }, 2000);
+      }
+      console.log(freq, note);
+    }
+  }
+
+  function analyseBuffer() {
+    //console.log(timedBuffer);
+    // analyse timedBuffer
+    var hTime = -1;
+    var startTime = -1;
+    for(var t in timedBuffer) {
+      if(hTime != -1 && timedBuffer[t] == 'j') {
+        startTime = parseFloat(t.substring(1));
+        break;
+      }
+      if(timedBuffer[t] == 'h') {
+        hTime = parseFloat(t.substring(1));
+      }
+    }
+    //console.log(hTime);
+    //console.log(startTime);
+    if(hTime == -1 && startTime == -1) return;
+    if(startTime == -1) startTime = hTime + 82.7;
+    startTime += 82.7;
+    var endTime = startTime + (82.7 * 19);
+    //console.log(startTime);
+    //console.log(endTime);
+    var charBuffer = [];
+    var prev = -1;
+    for(var t in timedBuffer) {
+      f = parseFloat(t.substring(1));
+      if(f > endTime) break;
+      if(f >= startTime) {
+        var i = parseInt((f - startTime) / 82.7);
+        if(typeof charBuffer[i] == 'undefined') charBuffer[i] = [];
+        charBuffer[i].push(timedBuffer[t]);
+        if(prev > 0) {
+          if(charBuffer[i][0] == charBuffer[prev][charBuffer[prev].length - 1]) {
+            charBuffer[i] = [];              
+            charBuffer[prev].push(timedBuffer[t]);
+          }
+        }
+        prev = i;
+      }
+    }
+    //console.log(charBuffer);
+    var charBuffer2 = [];
+    var data = '';
+    for(var i in charBuffer) {
+      var arr2 = charBuffer[i];
+      if(arr2.length > 1) {
+        var newArr = arr2.slice().sort(), most = [undefined, 0], counter = 0;
+        newArr.reduce(function(old, chr){
+           old == chr ? ++counter > most[1] && (most = [chr, counter]) : (counter = 1)
+           return chr
+        });          
+        charBuffer2[i] = most[0];
+      } else {
+        charBuffer2[i] = charBuffer[i][0];
+      }
+      data += charBuffer2[i];
+    }
+    //console.log(charBuffer2);
+    console.log(data);
+    timedBuffer = [];
+    var script = 'https://piupiuml.alwaysdata.net/chirp.php?data=' + encodeURIComponent(JSON.stringify({shortcode: data.substring(0, 10), callback: 'loadCards'})) + '&callback=Chirp_getResponse';
+    //console.log(script);
+    var jsonp = piupiu.loadScript(script);
+    setTimeout(function() { piupiu.unloadScript(jsonp); }, 5000); 
+    mic.initialize();
+  }
 }

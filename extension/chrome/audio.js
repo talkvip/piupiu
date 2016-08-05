@@ -4,6 +4,7 @@ var ChirpAudio = function(params) {
   params = params || {};
   this.alphabet = params.alphabet || '0123456789abcdefghijklmnopqrstuv';
   this.minFreq = params.minFreq || 1760.0;
+  this.freqError = params.freqError || 50;
   this.noteRatio = params.noteRatio || 1.0594630943591;
   this.noteDuration = params.noteDuration || 0.0872;
   this.rampDuration = params.rampDuration || 0.008;
@@ -25,11 +26,17 @@ var ChirpAudio = function(params) {
   this.data = '';
   this.phase = 0.0;
   this.volume = 0.25;
+  this.freqTable = {};
   this.freq = 0;
   this.freqTarget = 0;
   this.freqChange = 0.0;
+  this.onReceive = params.onReceive || null;
   
   if(this.audio.sampleRate) this.sampleRate = parseFloat(this.audio.sampleRate);
+
+  for(var i = 0; i < this.alphabet.length; i++) {
+    this.freqTable[this.alphabet[i]] = this.minFreq * Math.pow(this.noteRatio, i);
+  }
   
   this.waveTable = new Array(this.waveTableSize);
   for(var i = 0; i < this.waveTableSize + 2; i++) {
@@ -88,11 +95,133 @@ var ChirpAudio = function(params) {
     var note = this.alphabet.indexOf(c);
     return this.minFreq * Math.pow(this.noteRatio, note);
   }
+
+  this.freqToChar = function(freq) {    
+    var d = this.minFreq;
+    var c = '';
+    for(var i in this.freqTable) {
+      if(Math.abs(this.freqTable[i] - freq) < d) {
+        d = Math.abs(this.freqTable[i] - freq);
+        c = i;
+      }
+    }
+    if(d > this.freqError) {
+      //console.log(['Not in alphabet', freq, freq + d, freq - d, d]);
+      return '';
+    }
+    return c;
+  }
   
   this.play = function(data) {
     this.data = this.handShake + data;
     this.sample = -1;
     this.index = -1;
     this.position = -1;
+  }
+  
+  /* receive chirps */
+  
+  var proc = 0;
+  var timedBuffer = [];
+  var minFreq = this.minFreq;
+  var onReceiveCallback = this.onReceive;
+  
+  var mic = new Microphone({notes: this.freqTable, callback: function micCallback(ev) {
+    console.log(ev);
+    if('error' in ev) {
+      document.getElementById('debug').innerText = ev.error;
+    }
+    if(ev.event == 'gotstream') {
+      mic.startListening();
+    }
+    if(ev.event == 'listening') {
+      analyse();
+    }
+  }});
+  
+  mic.initialize();
+
+  function analyse() {
+    proc = requestAnimationFrame(analyse);
+    var freq = mic.getFreq(2);
+    var note = mic.getNote(2);
+    if(freq >= minFreq - 100) {
+      timedBuffer['_' + new Date().getTime()] = note;
+      if(note == 'h') {
+        setTimeout(function() {
+          cancelAnimationFrame(proc);
+          analyseBuffer();
+          mic.stopListening();
+        }, 2000);
+      }
+      console.log(freq, note);
+    }
+  }
+
+  function analyseBuffer() {
+    //console.log(timedBuffer);
+    // analyse timedBuffer
+    var hTime = -1;
+    var startTime = -1;
+    for(var t in timedBuffer) {
+      if(hTime != -1 && timedBuffer[t] == 'j') {
+        startTime = parseFloat(t.substring(1));
+        break;
+      }
+      if(timedBuffer[t] == 'h') {
+        hTime = parseFloat(t.substring(1));
+      }
+    }
+    //console.log(hTime);
+    //console.log(startTime);
+    if(hTime == -1 && startTime == -1) return;
+    if(startTime == -1) startTime = hTime + 82.7;
+    startTime += 82.7;
+    var endTime = startTime + (82.7 * 19);
+    //console.log(startTime);
+    //console.log(endTime);
+    var charBuffer = [];
+    var prev = -1;
+    for(var t in timedBuffer) {
+      f = parseFloat(t.substring(1));
+      if(f > endTime) break;
+      if(f >= startTime) {
+        var i = parseInt((f - startTime) / 82.7);
+        if(typeof charBuffer[i] == 'undefined') charBuffer[i] = [];
+        charBuffer[i].push(timedBuffer[t]);
+        if(prev > 0) {
+          if(charBuffer[i][0] == charBuffer[prev][charBuffer[prev].length - 1]) {
+            charBuffer[i] = [];              
+            charBuffer[prev].push(timedBuffer[t]);
+          }
+        }
+        prev = i;
+      }
+    }
+    //console.log(charBuffer);
+    var charBuffer2 = [];
+    var data = '';
+    for(var i in charBuffer) {
+      var arr2 = charBuffer[i];
+      if(arr2.length > 1) {
+        var newArr = arr2.slice().sort(), most = [undefined, 0], counter = 0;
+        newArr.reduce(function(old, chr){
+           old == chr ? ++counter > most[1] && (most = [chr, counter]) : (counter = 1)
+           return chr
+        });          
+        charBuffer2[i] = most[0];
+      } else {
+        charBuffer2[i] = charBuffer[i][0];
+      }
+      data += charBuffer2[i];
+    }
+    //console.log(charBuffer2);
+    console.log(data);
+    timedBuffer = [];
+    var script = 'https://piupiuml.alwaysdata.net/chirp.php?data=' + encodeURIComponent(JSON.stringify({shortcode: data.substring(0, 10), callback: 'loadCards'})) + '&callback=Chirp_getResponse';
+    //console.log(script);
+    var jsonp = piupiu.loadScript(script);
+    setTimeout(function() { piupiu.unloadScript(jsonp); }, 5000); 
+    mic.initialize();
   }
 }

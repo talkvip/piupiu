@@ -5,6 +5,7 @@
   <script type="text/javascript" src="JSON-js/json2.js"></script>
   <script type="text/javascript" src="base32.js"></script>
   <script type="text/javascript" src="audio.js"></script>
+  <script type="text/javascript" src="microphone.js"></script>
   <script type="text/javascript" src="piupiu.js"></script>
   <script type="text/javascript" src="chirp.js"></script>
 </head>
@@ -23,14 +24,16 @@
     <input type="submit" value="CHIRP TEST" />
   </form>
 
+  <div id="debug"></div>
+
   <script>
 
   var button = document.querySelector('#message');
   button.addEventListener('click', onButton);
  
+  var piupiu = new PIUPIU();
   var chirpAudio = new ChirpAudio();
   console.log(chirpAudio);
-  var piupiu = new PIUPIU();
   var chirp = new Chirp();
   
   function newChirp(data) {

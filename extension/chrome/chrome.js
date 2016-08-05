@@ -21,6 +21,35 @@ window.addEventListener('load', function(event) {
 	var h = decodeURIComponent(new String(location.hash).substring(1));
 	//console.log(h);
 	var data = {};
+	if(h == 'mic') {
+		document.body.innerText = '';
+	  var div = document.createElement('div');
+		div.setAttribute('class', 'chrome-menu');
+		div.setAttribute('style', 'width: 100% !important;');
+	  var div1 = document.createElement('div');
+		div1.setAttribute('style', 'height: 40px;');
+		div1.setAttribute('class', 'loading');
+	  var div2 = document.createElement('div');
+		div2.setAttribute('style', 'height: 40px; line-height: 40px;');
+		div2.innerText = 'Please allow...';
+		div.appendChild(div1);
+		div.appendChild(div2);
+		document.body.appendChild(div);
+    navigator.getUserMedia = (navigator.getUserMedia ||
+                              navigator.webkitGetUserMedia ||
+                              navigator.mozGetUserMedia || 
+                              navigator.msGetUserMedia);  
+
+    if(navigator.getUserMedia) {
+      // Request the microphone
+      navigator.getUserMedia({audio:true}, function() {
+        window.close();
+      }, function() {
+        // error 
+      });
+    }
+	  return;
+	}
 	if(h != '') data = JSON.parse(h);
 	if(typeof data != 'object' || data == null) data = {};
 	//console.log(data);
