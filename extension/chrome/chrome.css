@@ -8,6 +8,16 @@ body {
   font-family: Helvetica, Arial, Sans;
 }
 
+#debug {
+  display: inline-block;
+  line-height: 25px;
+  float: right;
+}
+
+#wave {
+  float: right;
+}
+
 .chrome-menu, .card, .card-content {
   box-sizing: border-box;
   padding: 10px;

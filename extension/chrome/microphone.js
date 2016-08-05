@@ -173,15 +173,18 @@ function Microphone(params) {
             }
         }
         
+        var analyser = context.createAnalyser();
+        
         // Create an audio source node from the microphone input to eventually 
         // feed into the processing node
         inputHardware = context.createMediaStreamSource(stream);
+        inputHardware.connect(analyser);
         procNode.connect(context.destination); // Node must have a destination
                                                // to work. Weird. 
         console.log('gotStream finished')                                      
         initialized = true;
         
-        if(callback) callback({event: 'gotstream', stream: stream, script: procNode});
+        if(callback) callback({event: 'gotstream', stream: stream, script: procNode, analyser: analyser});
     }
 
 // -----------------------------------------------------------------------------

@@ -133,6 +133,53 @@ var ChirpAudio = function(params) {
     }
     if(ev.event == 'gotstream') {
       mic.startListening();
+      var analyser = ev.analyser;
+
+      var canvas = document.getElementById('wave');
+      if(typeof canvas == 'undefined' || canvas == null) return;
+      var canvasCtx = canvas.getContext('2d');
+
+      var WIDTH = 175, HEIGHT = 25;
+      canvasCtx.canvas.width = WIDTH;
+      canvasCtx.canvas.height = HEIGHT;
+      
+      analyser.fftSize = 64;
+      var bufferLength = analyser.frequencyBinCount;
+      var dataArray = new Uint8Array(bufferLength);   
+
+      canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
+
+      function draw() {
+          drawVisual = requestAnimationFrame(draw);
+          canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
+          analyser.getByteTimeDomainData(dataArray);
+          canvasCtx.beginPath();
+  
+          var sliceWidth = WIDTH * 1.0 / bufferLength;
+          var x = 0;
+
+          for(var i = 0; i < bufferLength; i++) {
+                         
+              var v = dataArray[i] / 128.0;
+              var y = v * HEIGHT/2;
+     
+              if(i === 0) {
+                  canvasCtx.moveTo(x, y);
+              } else {
+                  canvasCtx.lineTo(x, y);
+              }
+      
+              x += sliceWidth;        
+                  
+       
+           }
+
+           //canvasCtx.lineTo(WIDTH, HEIGHT/2);
+           canvasCtx.stroke();
+
+      }
+
+      draw();      
     }
     if(ev.event == 'listening') {
       analyse();
