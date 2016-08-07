@@ -71,6 +71,9 @@ var pianoNotes = {"A#1" : 58.2705, "B1" : 61.7354, "C2" : 65.4064,
         	"A7" : 3520, "A#7" : 3729.31, "B7" : 3951.07, "C8" : 4186.01};
 
 
+var micAudioContext = window.AudioContext || window.webkitAudioContext;
+var micContext = new micAudioContext();   
+
 function Microphone(params) {
     params = params || {};
     var that = this;
@@ -124,7 +127,7 @@ function Microphone(params) {
         rightChannel = [];
         // Make a note that the microphone is about to be accessed
         console.log('Beginning!');
-        console.log(notes);
+        //console.log(notes);
         // Normalize the various vendor prefixed versions of getUserMedia
         navigator.getUserMedia = (navigator.getUserMedia ||
                                   navigator.webkitGetUserMedia ||
@@ -153,8 +156,6 @@ function Microphone(params) {
     function gotStream(stream) {
         console.log('gotStream called');
         // Create the audio context
-        audioContext = window.AudioContext || window.webkitAudioContext;
-        context = new audioContext();
 
         // Set up variables to perform FFT
         timeData = [];
@@ -163,7 +164,7 @@ function Microphone(params) {
         // Set up a processing node that will allow us to pass mic input off to
         // the DSP library for frequency domain analysis
         //procNode = context.createJavaScriptNode(BUFFER_LEN, 1, 1);
-        procNode = context.createScriptProcessor(BUFFER_LEN, 1, 1);
+        procNode = micContext.createScriptProcessor(BUFFER_LEN, 1, 1);
         procNode.onaudioprocess = function(e) {
             timeData = e.inputBuffer.getChannelData(0);
             if (recording) {
@@ -173,13 +174,13 @@ function Microphone(params) {
             }
         }
         
-        var analyser = context.createAnalyser();
+        var analyser = micContext.createAnalyser();
         
         // Create an audio source node from the microphone input to eventually 
         // feed into the processing node
-        inputHardware = context.createMediaStreamSource(stream);
+        inputHardware = micContext.createMediaStreamSource(stream);
         inputHardware.connect(analyser);
-        procNode.connect(context.destination); // Node must have a destination
+        procNode.connect(micContext.destination); // Node must have a destination
                                                // to work. Weird. 
         console.log('gotStream finished')                                      
         initialized = true;
@@ -245,6 +246,7 @@ function Microphone(params) {
 
             // Stop processing audio stream
             inputHardware.disconnect();
+            if(callback) callback({event: 'done'});
         }
     }
     

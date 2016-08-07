@@ -11,7 +11,7 @@ if(navigator.getUserMedia) {
   // Request the microphone
   navigator.getUserMedia({audio:true}, function() {
   }, function() {
-    chrome.windows.create({type: 'popup', url: 'popup.html#mic', width: 300, height: 100});  
+    chrome.windows.create({type: 'normal', url: 'popup.html#mic', width: 300, height: 100});  
   });
 }
 

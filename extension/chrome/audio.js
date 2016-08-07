@@ -125,9 +125,9 @@ var ChirpAudio = function(params) {
   var timedBuffer = [];
   var minFreq = this.minFreq;
   var onReceiveCallback = this.onReceive;
-  
-  var mic = new Microphone({notes: this.freqTable, callback: function micCallback(ev) {
-    console.log(ev);
+
+  function micCallback(ev) {
+    //console.log(ev);
     if('error' in ev) {
       document.getElementById('debug').innerText = ev.error;
     }
@@ -160,8 +160,11 @@ var ChirpAudio = function(params) {
 
           for(var i = 0; i < bufferLength; i++) {
                          
-              var v = dataArray[i] / 128.0;
-              var y = v * HEIGHT/2;
+              //var v = dataArray[i] / 128.0;
+              //var y = v * HEIGHT/2;
+              var v = dataArray[i] - 128;
+              y = HEIGHT / 2;
+              y += v * 0.5;
      
               if(i === 0) {
                   canvasCtx.moveTo(x, y);
@@ -183,9 +186,13 @@ var ChirpAudio = function(params) {
     }
     if(ev.event == 'listening') {
       analyse();
+    }   
+    if(ev.event == 'done') {
+      mic.initialize();          
     }
-  }});
+  }
   
+  var mic = new Microphone({notes: this.freqTable, callback: function(ev) { micCallback(ev); }});
   mic.initialize();
 
   function analyse() {
@@ -198,10 +205,11 @@ var ChirpAudio = function(params) {
         setTimeout(function() {
           cancelAnimationFrame(proc);
           analyseBuffer();
-          mic.stopListening();
+          //mic.stopListening();
+          mic.initialize();          
         }, 2000);
       }
-      console.log(freq, note);
+      //console.log(freq, note);
     }
   }
 
@@ -266,9 +274,8 @@ var ChirpAudio = function(params) {
     console.log(data);
     timedBuffer = [];
     var script = 'https://piupiuml.alwaysdata.net/chirp.php?data=' + encodeURIComponent(JSON.stringify({shortcode: data.substring(0, 10), callback: 'loadCards'})) + '&callback=Chirp_getResponse';
-    //console.log(script);
+    console.log(script);
     var jsonp = piupiu.loadScript(script);
     setTimeout(function() { piupiu.unloadScript(jsonp); }, 5000); 
-    mic.initialize();
   }
 }

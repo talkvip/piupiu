@@ -26,6 +26,7 @@ window.addEventListener('load', function(event) {
 	  var div = document.createElement('div');
 		div.setAttribute('class', 'chrome-menu');
 		div.setAttribute('style', 'width: 100% !important;');
+		div.setAttribute('id', 'debug');
 	  var div1 = document.createElement('div');
 		div1.setAttribute('style', 'height: 40px;');
 		div1.setAttribute('class', 'loading');
@@ -174,14 +175,17 @@ window.addEventListener('load', function(event) {
 	loadCards();
 });
 
-function loadCards() {
+function loadCards(data) {
+  //console.log(data);
 	chirp.load(function() {
     document.getElementById('cards').innerText = '';
-
     for(var i in Chirps) {
       var div = document.createElement('div');
       div.setAttribute('id', i);
       div.setAttribute('class', 'card');
+      if(typeof data == 'object') {
+        if(data.longcode == Chirps[i].data.longcode) div.setAttribute('class', 'card pulse');
+      }  
       div.setAttribute('title', Chirps[i].data.title);
       var del = document.createElement('div');
       del.setAttribute('id', i + '-del');
@@ -215,6 +219,7 @@ function loadCards() {
         }
       });
     }	
+    if(typeof data == 'object') showCard(data);
 	});
 }
 
@@ -243,6 +248,8 @@ function showCard(data) {
 	    img.setAttribute('id', data.url + '-image');
 	    img.src = data.url;
 	    div.appendChild(img);
+	  } else if(data.mimetype == 'text/plain') {
+	    div.innerText = data.body;
 	  } else {
 	    div.innerText = url.replace(piupiu.url, piupiu.old_url);
 	  }
