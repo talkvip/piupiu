@@ -96,4 +96,17 @@ PIUPIU = function() {
 		this.shortenURL_Id = null;
 		this.shortenURL_Callback = null;
 	}
+	
+	this.copyTextToClipboard = function(text) {
+    var copyFrom = document.createElement('textarea');
+    try {
+      copyFrom.textContent = text;
+      var body = document.getElementsByTagName('body')[0];
+      body.appendChild(copyFrom);
+      copyFrom.select();
+      document.execCommand('copy');
+    } catch(e) {
+    }
+    body.removeChild(copyFrom);
+  }
 }

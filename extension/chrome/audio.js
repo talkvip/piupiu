@@ -156,7 +156,7 @@ var ChirpAudio = function(params) {
           canvasCtx.canvas.width = WIDTH;
           canvasCtx.canvas.height = HEIGHT;
 
-          //if(chrome.tabs) {
+          if(chrome.tabs) {
       
             analyser.fftSize = 64;
             var bufferLength = analyser.frequencyBinCount;
@@ -205,9 +205,9 @@ var ChirpAudio = function(params) {
 
             draw(); 
           
-          //} else {
+          } else {
             // too cpu intensive for mobile
-          //}
+          }
         }, 100);
 
       
@@ -225,29 +225,22 @@ var ChirpAudio = function(params) {
     }
   }
   
-  if(typeof Microphone != 'undefined') {
-    var mic = new Microphone({minFreq: this.minFreq - 100, notes: this.freqTable, callback: function(ev) { micCallback(ev); }});
-    mic.initialize();
-  }
-
-  var isChirp = false;
+  var mic = new Microphone({notes: this.freqTable, callback: function(ev) { micCallback(ev); }});
+  mic.initialize();
 
   function analyse() {
     proc = requestAnimationFrame(analyse);
     //proc = setInterval(function() {
-      //var freq = mic.getFreq(2);
+      var freq = mic.getFreq(2);
       var note = mic.getNote(2);
-      //if(freq >= minFreq - 100) {
-        //console.log(note);
-        if(note == _this.handShake[0] && !isChirp) isChirp = true;
-        if(isChirp) {
-          timedBuffer['_' + new Date().getTime()] = note;
+      if(freq >= minFreq - 100) {
+        timedBuffer['_' + new Date().getTime()] = note;
+        if(note == _this.handShake[0]) {
           setTimeout(function() {
             //cancelAnimationFrame(proc);
             //if(drawVisual) cancelAnimationFrame(drawVisual);
             //clearInterval(proc);
             analyseBuffer();
-            isChirp = false;
             setTimeout(function() {
               //mic.stopListening();
               setTimeout(function() {
@@ -257,7 +250,7 @@ var ChirpAudio = function(params) {
           }, 1000 + (chirpAudio.noteDuration * 1000) * (_this.data.length + _this.handShake.length));
         }
         //console.log(freq, note);
-      //}
+      }
     //}, 1);
   }
 
@@ -283,9 +276,9 @@ var ChirpAudio = function(params) {
     //console.log(hTime);
     //console.log(startTime);
     if(hTime == -1 && startTime == -1) return;
-    if(startTime == -1) startTime = hTime + 87.2;
-    startTime += 87.2;
-    var endTime = startTime + (87.2 * 19);
+    if(startTime == -1) startTime = hTime + 82.7;
+    startTime += 82.7;
+    var endTime = startTime + (82.7 * 19);
     //console.log(startTime);
     //console.log(endTime);
     var charBuffer = [];
@@ -294,7 +287,7 @@ var ChirpAudio = function(params) {
       f = parseFloat(t.substring(1));
       if(f > endTime) break;
       if(f >= startTime) {
-        var i = parseInt((f - startTime) / 87.2);
+        var i = parseInt((f - startTime) / 82.7);
         if(typeof charBuffer[i] == 'undefined') charBuffer[i] = [];
         charBuffer[i].push(timedBuffer[t]);
         if(prev > 0) {
@@ -336,7 +329,7 @@ var ChirpAudio = function(params) {
     if(chrome.tabs) {
       //
     } else {
-      document.getElementById('console').innerText += 'Char buffer2: ' + JSON.stringify(charBuffer2) + '\n';
+      //document.getElementById('console').innerText += 'Char buffer2: ' + JSON.stringify(charBuffer2) + '\n';
     }
     //console.log(data);
     timedBuffer = [];

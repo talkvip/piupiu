@@ -1,4 +1,11 @@
-var chirpAudio = new ChirpAudio();
+var chirpAudio = new ChirpAudio({onReceive: function(data) {
+  console.log(data);
+  var script = 'https://piupiuml.alwaysdata.net/chirp.php?data=' + encodeURIComponent(JSON.stringify({shortcode: data.substring(0, 10), callback: 'loadCards'})) + '&callback=Chirp_getResponse';
+  //console.log(script);
+  var jsonp = piupiu.loadScript(script);
+  setTimeout(function() { piupiu.unloadScript(jsonp); }, 5000); 
+}});
+//var chirpAudio = new ChirpAudio();
 var piupiu = new PIUPIU();
 var chirp = new Chirp();
 
@@ -258,7 +265,14 @@ function loadCards(data) {
         }
       });
     }	
-    if(typeof data == 'object') showCard(data);
+    if(typeof data == 'object') {
+      showCard(data);
+      if('body' in data) {
+        if(body.indexOf('clipboard:') == 0) {
+          piupiu.copyTextToClipboard(body.substring(10));
+        }
+      }
+    }
 	});
 }
 
