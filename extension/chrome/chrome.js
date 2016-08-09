@@ -2,6 +2,8 @@ var chirpAudio = new ChirpAudio();
 var piupiu = new PIUPIU();
 var chirp = new Chirp();
 
+if(!chrome) chrome = {};
+
 function showError(err, u, l) {
   document.body.innerText = '';
   var div = document.createElement('div');
@@ -33,6 +35,7 @@ window.addEventListener('load', function(event) {
 	  var div2 = document.createElement('div');
 		div2.setAttribute('style', 'height: 40px; line-height: 40px;');
 		div2.innerText = 'Please allow...';
+		if(chrome.i18n) div2.innerText = chrome.i18n.getMessage('loading') + '...';
 		div.appendChild(div1);
 		div.appendChild(div2);
 		document.body.appendChild(div);
@@ -88,9 +91,18 @@ window.addEventListener('load', function(event) {
           });
           return;
         }
-        chirp.create({title: data.title, url: data.url}, 'newChirpClose');
-        return; // lut.im down?
         if(data.image) {
+          var form = new FormData();
+          form.append('format', 'json');
+          form.append('lutim-file-url', data.url);
+          piupiu.uploadImage(form, function(r) {
+            if('url' in r) {
+              chirp.create({title: r.filename, url: r.url}, 'newChirpClose');
+            } else {
+              chirp.create({title: data.title, url: data.url}, 'newChirpClose');
+            }
+          });        
+          /*
           var blob = null;
           var xhr = new XMLHttpRequest(); 
           xhr.open('GET', data.url); 
@@ -115,6 +127,10 @@ window.addEventListener('load', function(event) {
             });
           }
           xhr.send();		  
+          */
+          return;
+        } else {
+          chirp.create({title: data.title, url: data.url}, 'newChirpClose');        
           return;
         }
       }
@@ -138,23 +154,45 @@ window.addEventListener('load', function(event) {
 		}
 	}
 
+  if(!chrome.tabs) document.getElementById('chirp-url').innerText = 'Share URL';
+  if(chrome.i18n) document.getElementById('chirp-url').innerText = chrome.i18n.getMessage('shareURL');
 	document.getElementById('chirp-url').addEventListener('click', function(event) {
-		chrome.tabs.query({active: true, currentWindow: true}, function(arrayOfTabs) {
-		  var activeTab = arrayOfTabs[0];
-		  var activeTabId = activeTab.id; // or do whatever you need	
-		  document.getElementById('chirp-url').className = document.getElementById('chirp-url').className + ' loading';
-			piupiu.shortenURL(activeTab.url, function(r) {
-				var a = document.createElement('a');
-				a.href = activeTab.url;				
+	  if(chrome.tabs) {
+      chrome.tabs.query({active: true, currentWindow: true}, function(arrayOfTabs) {
+        var activeTab = arrayOfTabs[0];
+        var activeTabId = activeTab.id; // or do whatever you need	
+        document.getElementById('chirp-url').className = document.getElementById('chirp-url').className + ' loading';
+        piupiu.shortenURL(activeTab.url, function(r) {
+          var a = document.createElement('a');
+          a.href = activeTab.url;				
+          if('shorturl' in r) {
+            chirp.create({title: a.hostname.replace('www.', '') + ' - ' + activeTab.title, url: r.shorturl}, 'newChirp');
+          } else {
+            chirp.create({title: a.hostname.replace('www.', '') + ' - ' + activeTab.title, url: activeTab.url}, 'newChirp');
+          }
+        });
+      });		
+		} else {
+		  var url = prompt('URL to share', '');
+		  if(typeof url == 'undefined' || url == null) url = '';
+		  if(url == '') return;
+      document.getElementById('chirp-url').className = document.getElementById('chirp-url').className + ' loading';
+      piupiu.shortenURL(url, function(r) {
+        var a = document.createElement('a');
+        a.href = url;				
         if('shorturl' in r) {
-          chirp.create({title: a.hostname.replace('www.', '') + ' - ' + activeTab.title, url: r.shorturl}, 'newChirp');
+          chirp.create({title: a.hostname.replace('www.', ''), url: r.shorturl}, 'newChirp');
         } else {
-          chirp.create({title: a.hostname.replace('www.', '') + ' - ' + activeTab.title, url: activeTab.url}, 'newChirp');
+          chirp.create({title: a.hostname.replace('www.', ''), url: url}, 'newChirp');
         }
-      });
-		});		
+      });		  
+		}
 	});
+
+	if(chrome.i18n) document.getElementById('del-message').innerText = chrome.i18n.getMessage('remove');
+
 	
+	if(chrome.i18n) document.getElementById('confirm-del-btn').innerText = chrome.i18n.getMessage('confirm');
 	document.getElementById('confirm-del-btn').addEventListener('click', function(event) {
 	  if(event.target.getAttribute('longcode') == '') return;
     localStorage.removeItem('$chirp-' + event.target.getAttribute('longcode'));
@@ -167,6 +205,7 @@ window.addEventListener('load', function(event) {
     }, 1000);	
 	});
 
+	if(chrome.i18n) document.getElementById('confirm-del-cancel').innerText = chrome.i18n.getMessage('cancel');
 	document.getElementById('confirm-del-cancel').addEventListener('click', function(event) {
     event.target.setAttribute('longcode', '');
     document.getElementById('confirm-del').style.display = 'none';
@@ -265,14 +304,22 @@ function showCard(data) {
   document.getElementById(data.url + '-content').addEventListener('click', function(event) {
     if(event.target.id.replace('-content', '') in Chirps) {
       var data = Chirps[event.target.id.replace('-content', '')].data;
-      chrome.tabs.create({url: data.url});
+      if(chrome.tabs) {
+        chrome.tabs.create({url: data.url});
+      } else {
+        window.open(data.url);
+      }
 		}
   });
   if(typeof document.getElementById(data.url + '-image') != 'undefined' && document.getElementById(data.url + '-image') != null) {
     document.getElementById(data.url + '-image').addEventListener('click', function(event) {
       if(event.target.id.replace('-image', '') in Chirps) {
         var data = Chirps[event.target.id.replace('-image', '')].data;
-        chrome.tabs.create({url: data.url});
+        if(chrome.tabs) {
+          chrome.tabs.create({url: data.url});
+        } else {
+          window.open(data.url);
+        }          
       }
     });
   }
@@ -281,6 +328,12 @@ function showCard(data) {
 		chirp.play();
 		event.stopPropagation();
   });
+  setTimeout(function() {
+    if(parent.offsetTop + parent.clientHeight > document.getElementById('cards').clientHeight + document.getElementById('cards').scrollTop) {
+      document.getElementById('cards').scrollTop = parent.offsetTop + parent.clientHeight;
+    }
+    if(parent.offsetTop < document.getElementById('cards').scrollTop) document.getElementById('cards').scrollTop = parent.offsetTop;
+  }, 100);
 }
 
 function newChirp(data) {

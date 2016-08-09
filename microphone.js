@@ -72,7 +72,7 @@ var pianoNotes = {"A#1" : 58.2705, "B1" : 61.7354, "C2" : 65.4064,
 
 
 var micAudioContext = window.AudioContext || window.webkitAudioContext;
-var micContext = new micAudioContext();   
+var micContext = new micAudioContext();  
 
 function Microphone(params) {
     params = params || {};
@@ -84,7 +84,7 @@ function Microphone(params) {
     var timeData;
     var procNode;
     var BUFFER_LEN;
-    var MIN_SUPPORTED_FREQ;
+    var MIN_SUPPORTED_FREQ = 60 || params.minFreq;
     var MAX_PEAK_SEARCH;
     var fft;
     var spectrum;
@@ -114,7 +114,6 @@ function Microphone(params) {
         procNode = null;           
         BUFFER_LEN = 1024;          // Keep a power of 2, but can change to
                                     // provide more data, increased resolution
-        MIN_SUPPORTED_FREQ = 60;    
         MAX_PEAK_SEARCH = (SAMPLE_RATE/MIN_SUPPORTED_FREQ);
         fft = null;
         spectrum = null;
@@ -156,6 +155,9 @@ function Microphone(params) {
     function gotStream(stream) {
         console.log('gotStream called');
         // Create the audio context
+
+        var gain = micContext.createGain();
+        gain.gain.value = 0.5;
 
         // Set up variables to perform FFT
         timeData = [];
@@ -337,7 +339,11 @@ function Microphone(params) {
     
     this.getFreq = function(method) {
         if (!processing) {
-            throw "Cannot compute frequency from null input";
+            //throw "Cannot compute frequency from null input";
+            var _this = this; // try again
+            setTimeout(function() {
+              _this.getFreq(method);
+            }, 1);
         }
         if (method == 1) {
             return computeFreqFromAutocorr();
@@ -354,7 +360,11 @@ function Microphone(params) {
     
     this.getNote = function(method) {
         if (!processing) {
-            throw "Cannot compute frequency from null input";
+            //throw "Cannot compute frequency from null input";
+            var _this = this; // try again
+            setTimeout(function() {
+              _this.getNote(method);
+            }, 1);            
         }
         if (method == 1) {
             return getNoteFromAutocorr();
@@ -371,7 +381,12 @@ function Microphone(params) {
     
     this.getNoteCents = function(method) {
         if (!processing) {
-            throw "Cannot compute frequency from null input";
+            //throw "Cannot compute frequency from null input";
+            var _this = this; // try again
+            setTimeout(function() {
+              _this.getNoteCents(method);
+            }, 1);
+            
         }
         if (method == 1) {
             return getNoteCentsFromAutocorr();
@@ -468,6 +483,12 @@ function Microphone(params) {
 // guess the actual value of the peak frequency of the signal.
 
     function computeFreqFromFFT() {
+        if(fft == null) {
+          setTimeout(function() { // try again
+            computeFreqFromFFT();
+          }, 100);
+          return;
+        }
         fft.forward(timeData);   // See added dsp library for additional info
         spectrum = fft.spectrum;
         

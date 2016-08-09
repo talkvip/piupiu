@@ -5,5 +5,9 @@
   "shareImage": { "message": "Partager l'image" },
   "shareFrame": { "message": "Partager l'adresse du cadre" },
   "shareLink": { "message": "Partager le lien" },
-  "shareText": { "message": "Partager le texte" }
+  "shareText": { "message": "Partager le texte" },
+  "remove": { "message": "Supprimer ce chirp?" },
+  "confirm": { "message": "Confirmer" },
+  "cancel": { "message": "Annuler" },
+  "loading": { "message": "Chargement" }
 }
