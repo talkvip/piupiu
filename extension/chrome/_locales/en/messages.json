@@ -3,6 +3,8 @@
   "extensionDescription": { "message": "Send text, pictures or links using sound waves! (Chirp compatible)" },
   "shareURL": { "message": "Share current URL" },
   "shareImage": { "message": "Share image" },
+  "shareVideo": { "message": "Share video" },
+  "shareAudio": { "message": "Share audio" },
   "shareFrame": { "message": "Share frame URL" },
   "shareLink": { "message": "Share link URL" },
   "shareText": { "message": "Share text" },

@@ -3,6 +3,8 @@
   "extensionDescription": { "message": "Transférez du texte, des images et des liens, sans connexion, uniquement avec du son! (compatible Chirp)" },
   "shareURL": { "message": "Partager la page en cours" },
   "shareImage": { "message": "Partager l'image" },
+  "shareVideo": { "message": "Partager la vidéo" },
+  "shareAudio": { "message": "Partager l'audio" },
   "shareFrame": { "message": "Partager l'adresse du cadre" },
   "shareLink": { "message": "Partager le lien" },
   "shareText": { "message": "Partager le texte" },

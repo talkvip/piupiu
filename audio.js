@@ -225,8 +225,10 @@ var ChirpAudio = function(params) {
     }
   }
   
-  var mic = new Microphone({notes: this.freqTable, callback: function(ev) { micCallback(ev); }});
-  mic.initialize();
+  if(typeof Microphone != 'undefined') {
+    var mic = new Microphone({notes: this.freqTable, callback: function(ev) { micCallback(ev); }});
+    mic.initialize();
+  }
 
   function analyse() {
     proc = requestAnimationFrame(analyse);

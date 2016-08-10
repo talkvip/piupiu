@@ -101,12 +101,12 @@ PIUPIU = function() {
     var copyFrom = document.createElement('textarea');
     try {
       copyFrom.textContent = text;
-      var body = document.getElementsByTagName('body')[0];
-      body.appendChild(copyFrom);
+      document.body.appendChild(copyFrom);
       copyFrom.select();
       document.execCommand('copy');
     } catch(e) {
+      console.log(e);
     }
-    body.removeChild(copyFrom);
+    document.body.removeChild(copyFrom);
   }
 }

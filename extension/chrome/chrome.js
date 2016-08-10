@@ -1,13 +1,6 @@
-var chirpAudio = new ChirpAudio({onReceive: function(data) {
-  console.log(data);
-  var script = 'https://piupiuml.alwaysdata.net/chirp.php?data=' + encodeURIComponent(JSON.stringify({shortcode: data.substring(0, 10), callback: 'loadCards'})) + '&callback=Chirp_getResponse';
-  //console.log(script);
-  var jsonp = piupiu.loadScript(script);
-  setTimeout(function() { piupiu.unloadScript(jsonp); }, 5000); 
-}});
-//var chirpAudio = new ChirpAudio();
-var piupiu = new PIUPIU();
-var chirp = new Chirp();
+var chirpAudio = null;
+var piupiu = null;
+var chirp = null;
 
 if(!chrome) chrome = {};
 
@@ -27,10 +20,45 @@ window.addEventListener('load', function(event) {
 		return false;
   }
   
-	var h = decodeURIComponent(new String(location.hash).substring(1));
+ 	var h = decodeURIComponent(new String(location.hash).substring(1));
+
+  if(h != 'mic') {  
+    navigator.getUserMedia = (navigator.getUserMedia ||
+                              navigator.webkitGetUserMedia ||
+                              navigator.mozGetUserMedia || 
+                              navigator.msGetUserMedia);  
+
+    if(navigator.getUserMedia) {
+      // Request the microphone
+      navigator.getUserMedia({audio:true}, function() {
+      }, function() {
+        setTimeout(function() {
+          chrome.windows.create({type: 'normal', url: 'popup.html#mic', width: 500, height: 100});  
+          document.body.className = 'mic';
+          document.body.innerText = 'Please allow...';
+        }, 1000);
+        return;
+      });
+    }
+  
+    if(document.body.innerText == 'Please allow...') return;
+  }
+  
+  chirpAudio = new ChirpAudio({onReceive: function(data) {
+    console.log(data);
+    var script = 'https://piupiuml.alwaysdata.net/chirp.php?data=' + encodeURIComponent(JSON.stringify({shortcode: data.substring(0, 10), callback: 'loadCards'})) + '&callback=Chirp_getResponse';
+    //console.log(script);
+    var jsonp = piupiu.loadScript(script);
+    setTimeout(function() { piupiu.unloadScript(jsonp); }, 5000); 
+  }});
+  //var chirpAudio = new ChirpAudio();
+  piupiu = new PIUPIU();
+  chirp = new Chirp();
+  
 	//console.log(h);
 	var data = {};
 	if(h == 'mic') {
+  	document.title = 'piupiu - PLEASE ALLOW MICROPHONE ACCESS';
 		document.body.innerText = '';
 	  var div = document.createElement('div');
 		div.setAttribute('class', 'chrome-menu');
@@ -268,8 +296,8 @@ function loadCards(data) {
     if(typeof data == 'object') {
       showCard(data);
       if('body' in data) {
-        if(body.indexOf('clipboard:') == 0) {
-          piupiu.copyTextToClipboard(body.substring(10));
+        if(data.body.indexOf('clipboard:') == 0) {
+          piupiu.copyTextToClipboard(data.body.substring(10));
         }
       }
     }

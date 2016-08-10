@@ -8,6 +8,11 @@ body {
   font-family: Helvetica, Arial, Sans;
 }
 
+body.mic {
+  width: 500px;
+  height: 100px;
+}
+
 #debug {
   display: inline-block;
   line-height: 25px;
