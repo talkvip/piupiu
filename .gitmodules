@@ -8,3 +8,6 @@
 [submodule "extension/chrome/JSON-js"]
 	path = extension/chrome/JSON-js
 	url = https://github.com/douglascrockford/JSON-js
+[submodule "extension/safari/piupiu.safariextension/JSON-js"]
+	path = extension/safari/piupiu.safariextension/JSON-js
+	url = https://github.com/douglascrockford/JSON-js
