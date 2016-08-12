@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <os:openServiceDescription
     xmlns:os="http://www.microsoft.com/schemas/openservicedescription/1.0">
-    <os:homepageUrl>https://piupiuml.alwaysdata.net/</os:homepageUrl>
+    <os:homepageUrl>https://piupiu.ml/</os:homepageUrl>
     <os:display>
         <os:name>Share with piupiu</os:name>
-        <os:icon>https://piupiuml.alwaysdata.net/favicon.ico</os:icon>
+        <os:icon>https://piupiu.ml/favicon.ico</os:icon>
         <os:description>Send text, pictures or links using sound waves! (Chirp compatible)</os:description>
     </os:display>
     <os:activity category="Share">
         <os:activityAction context="document">
-            <os:execute action="https://piupiuml.alwaysdata.net/" method="post">
+            <os:execute action="https://piupiu.ml/" method="post">
                 <os:parameter name="title" value="{documentTitle}" type="text" /> 
                 <os:parameter name="url" value="{documentUrl}" type="text" /> 
             </os:execute>
         </os:activityAction>
         <os:activityAction context="selection">
-            <os:execute action="https://piupiuml.alwaysdata.net/" method="post">
+            <os:execute action="https://piupiu.ml/" method="post">
                 <os:parameter name="title" value="{selection}" type="text" /> 
                 <os:parameter name="body" value="{selection}" type="text" /> 
             </os:execute>
         </os:activityAction>
         <os:activityAction context="link">
-            <os:execute action="https://piupiuml.alwaysdata.net/" method="post">
+            <os:execute action="https://piupiu.ml/" method="post">
                 <os:parameter name="title" value="{linkText}" type="text" /> 
                 <os:parameter name="url" value="{link}" type="text" /> 
             </os:execute>
