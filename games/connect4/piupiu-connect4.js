@@ -28,10 +28,16 @@ function RS(messageLength, errorCorrectionLength) {
     };
 }
 
+function LOG(msg) {
+  console.log(msg);
+  document.getElementById('console').innerText = msg + '\r\n' + document.getElementById('console').innerText;
+}
+
 /* piupiu connect 4 addon: play connect 4 using 2 devices and the piupiu (chirp) protocol */
 
 var PIUPIU_Game = 'c4';
 var PIUPIU_GameStatus = '';
+var PIUPIU_LastMove = '';
 var PIUPIU_Player = 0;
 var PIUPIU_Opponent = 0;
 var chirpAudio = null;
@@ -51,27 +57,32 @@ function startGame(ai_1_strength, ai_2_strength) {
 }
 
 function chirpPlayer(data) {
-  console.log(data);
+  LOG('Data: ' + data);
   var code = data;
   try {
     data = PIUPIU_decode(code);
   } catch(e) {
     data = code.substring(0, 5);
   }
-  //console.log(data);
+  //LOG(data);
   if(data.indexOf(PIUPIU_Game) == 0) {
     data = data.substring(PIUPIU_Game.length);
     //if(data.indexOf(PIUPIU_Game) == 0) data = data.substring(PIUPIU_Game.length);
     var cmd = data[0];
-    console.log('Command: ' + cmd);
+    LOG('Command: ' + cmd);
     if(cmd == 'r') {
-      setTimeout(function() { PIUPIU_replay(); }, 500);    
+      LOG('Opponent asked to rechirp');
+      var p = parseInt(('' + parseInt(data.substring(1))).substring(0, 1));
+      if(p == PIUPIU_Player || p == 0 || isNaN(p)) return; // ignore current/invalid player
+      //if(timeoutInterval != null) { clearInterval(timeoutInterval); timeoutInterval = null; }    
+      setTimeout(function() { PIUPIU_replay(); }, 500);  
+      return;
     }
     if(cmd == 'p') {
       var p = parseInt(('' + parseInt(data.substring(1))).substring(0, 1));
-      console.log('Player: ' + p);
-      if(p == PIUPIU_Player) return; // ignore current player
-      if(confirm('Player ' + p + ' wants to play Connect 4 with you. Agree?')) {
+      LOG('Broadcast from: ' + p + ' (you are player ' + PIUPIU_Player + ')');
+      if(p == PIUPIU_Player || p == 0 || isNaN(p)) return; // ignore current/invalid player
+      if(confirm('Player ' + p + ' wants to play Connect 4 with you. Agree?')) { // join game
         PIUPIU_Opponent = p;
         PIUPIU_Player = (p == 1) ? 2 : 1;
         var players = document.getElementById('players');
@@ -87,11 +98,14 @@ function chirpPlayer(data) {
         opponent.disabled = true;
         setTimeout(function() { PIUPIU_join(); }, 500);
       }
+      if(timeoutInterval != null) { clearInterval(timeoutInterval); timeoutInterval = null; }    
+      return;
     }
-    if(cmd == 'j') {
+    if(cmd == 'j') { // opponent joined the game
       var p = data[1];
-      //console.log('Player: ' + p);
+      LOG('Player ' + p + ' joined the game');
       if(parseInt(p) != PIUPIU_Player) return; // game not initiated by current player
+      if(timeoutInterval != null) { clearInterval(timeoutInterval); timeoutInterval = null; }       
       var o = data[2];
       PIUPIU_Opponent = parseInt(o);
       if(PIUPIU_Opponent != ((PIUPIU_Player == 1)?2:1)) return;
@@ -102,15 +116,18 @@ function chirpPlayer(data) {
       opponent.options.selectedIndex = n;
       opponent.disabled = true;
       PIUPIU_GameStatus = 'join';
-      setTimeout(function() { PIUPIU_start(); }, 500);     
+      setTimeout(function() { PIUPIU_start(); }, 500);
+      return;
     }
-    if(cmd == 's') {
+    if(cmd == 's') { // game started by opponent - restart if not moved within 10 sec
       var p = data[1];
-      //console.log('Player: ' + p);
+      //LOG('Player: ' + p);
       if(parseInt(p) != PIUPIU_Opponent) return; // game not initiated by this player
       var o = data[2];
-      //console.log('Opponent: ' + o);
+      //LOG('Opponent: ' + o);
+      LOG('Game started by ' + o);
       if(parseInt(o) != PIUPIU_Player) return; // game not shared with this player
+      if(timeoutInterval != null) { clearInterval(timeoutInterval); timeoutInterval = null; }               
       var players = document.getElementById('players');
       var player = players.elements['player_' + PIUPIU_Player];
       var n = player.options.length - 1;
@@ -125,19 +142,45 @@ function chirpPlayer(data) {
       newGame();
       player.disabled = true;      
       opponent.disabled = true;   
-      PIUPIU_GameStatus = 'started';      
+      PIUPIU_GameStatus = 'started';  
+      timeoutInterval = setInterval(function() {
+        if(PIUPIU_GameStatus == 'started') {
+          setTimeout(function() { PIUPIU_rechirp(); }, 500);
+        } else {
+          clearInterval(timeoutInterval);
+          timeoutInterval = null;          
+        }
+      }, 10000);      
+      return;
     }   
-    if(cmd == 'm') {
+    if(cmd == 'm') { // opponent moved - reask if no move within 10 sec
       var p = data[1];
-      //console.log('Player: ' + p);
-      if(parseInt(p) != PIUPIU_Opponent) return; // move not initiated by opponent      
+      LOG('Player ' + p + ' moved');
+      if(parseInt(p) != PIUPIU_Opponent) {
+        if(parseInt(p) != PIUPIU_Player) setTimeout(function() { PIUPIU_rechirp(); }, 500);
+        return; // move not initiated by opponent      
+      }
+      if(timeoutInterval != null) { clearInterval(timeoutInterval); timeoutInterval = null; } 
       var c = data[2];
       var col = document.getElementById('piupiu-col-' + c);
       col.className = col.className.replace(' piupiu', '');
       col.click();
       col.className = col.className + ' piupiu';
+      PIUPIU_GameStatus = 'move' + p;
+      PIUPIU_LastMove = PIUPIU_GameStatus;
+      timeoutInterval = setInterval(function() {
+        if(PIUPIU_GameStatus == PIUPIU_LastMove) {
+          setTimeout(function() { PIUPIU_rechirp(); }, 500);
+        } else {
+          clearInterval(timeoutInterval);
+          timeoutInterval = null;
+        }
+      }, 10000);
+      return;
     }
+    setTimeout(function() { PIUPIU_rechirp(); }, 500);
   }
+  setTimeout(function() { PIUPIU_rechirp(); }, 500);
 }
 
 window.addEventListener('load', function(event) {
@@ -151,6 +194,8 @@ window.addEventListener('load', function(event) {
   document.getElementsByTagName('head')[0].appendChild(meta);
 
   var debug = document.createElement('div');
+  debug.setAttribute('id', 'debug');
+  
   var canvas = document.createElement('canvas');
   canvas.setAttribute('id', 'wave');
   debug.appendChild(canvas);
@@ -160,14 +205,6 @@ window.addEventListener('load', function(event) {
   consoleDiv.setAttribute('id', 'console');
   //consoleDiv.setAttribute('style', 'display: none;');
   document.body.appendChild(consoleDiv);
-
-  var replay = document.createElement('div');
-  replay.setAttribute('id', 'replay');
-  replay.setAttribute('style', 'width: 30px; height: 30px; background-color: silver;');
-  document.body.appendChild(replay);
-  replay.addEventListener('click', function(event) {
-    setTimeout(function() { chirp.play(); }, 500);
-  });
 
   PIUPIU_Player = 0;
   chirpAudio = new ChirpAudio();
@@ -226,32 +263,32 @@ window.onkeydown = function(event) {
 function PIUPIU_command(cmd) {
   bin = PIUPIU_Game + cmd;
   while(bin.length < 5) bin += '0';
-  //console.log(bin.length);
+  //LOG(bin.length);
   
   var el = 6; // error length
   var ec = RS(bin.length + el, el);
   var message = new Int32Array(ec.messageLength);
   for (var i = 0; i < ec.dataLength; i++) message[i] = chirpAudio.alphabet.indexOf(bin.charAt(i));
   
-  //console.log('raw data');
-  //console.log(Array.prototype.join.call(message));  
+  //LOG('raw data');
+  //LOG(Array.prototype.join.call(message));  
   ec.encode(message);
   
-  //console.log('rs coded');
-  //console.log(Array.prototype.join.call(message));  
+  //LOG('rs coded');
+  //LOG(Array.prototype.join.call(message));  
   
   var e = message.slice(5);
-  //console.log(e);
-  //console.log(e.length);  
+  //LOG(e);
+  //LOG(e.length);  
   
   var ec = base32hex.encode(e);
-  //console.log(ec);
-  //console.log(ec.length);  
+  //LOG(ec);
+  //LOG(ec.length);  
 
-  //console.log(base32hex.decode(ec));
+  //LOG(base32hex.decode(ec));
 
   code = bin + ec.toLowerCase();
-  //console.log(code);
+  //LOG(code);
   
   return code;
 }
@@ -259,37 +296,55 @@ function PIUPIU_command(cmd) {
 function PIUPIU_decode(code) {
 
   b = code.substring(0, 13);
-  //console.log(b);
+  //LOG(b);
 
   var el = 6; // error length
   var ec = RS(5 + el, el);
   var message = new Int32Array(ec.messageLength);
   
   var e = base32hex.decode(b.slice(5));
-  //console.log(e.length);
-  //console.log(e);
+  //LOG(e.length);
+  //LOG(e);
 
   for (var i = 0; i < 5; i++) message[i] = chirpAudio.alphabet.indexOf(b.charAt(i));
   for (var i = 5; i < b.length; i++) message[i] = e[i - 5];
-  //console.log(Array.prototype.join.call(message));
+  //LOG(Array.prototype.join.call(message));
 
   ec.decode(message);
 
-  //console.log('rs decoded');
-  //console.log(Array.prototype.join.call(message));
+  //LOG('rs decoded');
+  //LOG(Array.prototype.join.call(message));
 
   var code = '';
   for(var i = 0; i < 5; i++) code += chirpAudio.alphabet.charAt(message[i]);
-  //console.log(code);
+  //LOG(code);
   
   return code;
 }
 
-function PIUPIU_replay() {
+function PIUPIU_replay() { // ask opponent to replay last chirp
+  LOG('Did not get it!? Replay...');
   setTimeout(function() { chirp.play(); }, 500);
 }
 
-function PIUPIU_chirpPlayer() {
+function PIUPIU_rechirp() { // look for player (broadcast every 10 sec.)
+  LOG('Ask opponent to rechirp');
+  chirp.data.longcode = PIUPIU_command('r' + PIUPIU_Player);
+  setTimeout(function() { chirp.play(); }, 500);
+  PIUPIU_GameStatus = 'chirp';
+  timeoutInterval = setInterval(function() {
+    if(PIUPIU_GameStatus == 'chirp') {
+      //setTimeout(function() { PIUPIU_replay(); }, 500);
+    } else {
+      clearInterval(timeoutInterval);
+      timeoutInterval = null;
+    }
+  }, 10000);
+}
+
+
+function PIUPIU_chirpPlayer() { // look for player (broadcast every 10 sec.)
+  LOG('Broadcast: you are player ' + PIUPIU_Player);
   chirp.data.longcode = PIUPIU_command('p' + PIUPIU_Player);
   setTimeout(function() { chirp.play(); }, 500);
   PIUPIU_GameStatus = 'play';
@@ -298,11 +353,13 @@ function PIUPIU_chirpPlayer() {
       setTimeout(function() { PIUPIU_replay(); }, 500);
     } else {
       clearInterval(timeoutInterval);
+      timeoutInterval = null;
     }
   }, 10000);
 }
 
-function PIUPIU_join() {
+function PIUPIU_join() { // join game - resend join if status does not become started
+  LOG('Join game: you vs ' + PIUPIU_Opponent);
   chirp.data.longcode = PIUPIU_command('j' + PIUPIU_Opponent + PIUPIU_Player);
   setTimeout(function() { chirp.play(); }, 500);
   PIUPIU_GameStatus = 'join';
@@ -311,11 +368,13 @@ function PIUPIU_join() {
       setTimeout(function() { PIUPIU_replay(); }, 500);
     } else {
       clearInterval(timeoutInterval);
+      timeoutInterval = null;
     }
   }, 10000);  
 }
 
-function PIUPIU_start() {
+function PIUPIU_start() { // start the game - restart if no move
+  LOG('Start game with ' + PIUPIU_Opponent);
   chirp.data.longcode = PIUPIU_command('s' + PIUPIU_Player + PIUPIU_Opponent);
   setTimeout(function() { chirp.play(); }, 500);
   var players = document.getElementById('players');
@@ -333,6 +392,14 @@ function PIUPIU_start() {
   player.disabled = true;      
   opponent.disabled = true;    
   PIUPIU_GameStatus = 'started';
+  timeoutInterval = setInterval(function() {
+    if(PIUPIU_GameStatus == 'started') {
+      setTimeout(function() { PIUPIU_replay(); }, 500);
+    } else {
+      clearInterval(timeoutInterval);
+      timeoutInterval = null;
+    }
+  }, 10000);  
 }
 
 function newGame() {
@@ -340,7 +407,7 @@ function newGame() {
   var ai_1_strength = parseInt(players.player_1.value, 10);
   var ai_2_strength = parseInt(players.player_2.value, 10);
   startGame(ai_1_strength, ai_2_strength);
-  //console.log(game);
+  //LOG(game);
   var controls = document.getElementById('board').firstChild.firstChild.getElementsByTagName('div');
   for(var i = 0; i < controls.length; i++) {
     var control = controls[i];
@@ -356,10 +423,11 @@ function newGame() {
           event.stopPropagation();
           return false;
         } else {
+          if(timeoutInterval != null) clearInterval(timeoutInterval);            
           var parts = event.target.className.split(' ');
           col = parts[1].replace('col-', '');
           chirp.data.longcode = PIUPIU_command('m' + PIUPIU_Player + col);
-          chirp.play();    
+          setTimeout(function() { chirp.play(); });
           if(firstMove) {
             var players = document.getElementById('players');
             var player = players.elements['player_' + PIUPIU_Player];

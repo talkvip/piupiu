@@ -133,6 +133,13 @@ var ChirpAudio = function(params) {
   var drawVisual = null;
   var micAnalyser = null;
   
+  var canvas = document.getElementById('wave');
+  if(typeof canvas != 'undefined' && canvas != null) {
+    var canvasCtx = canvas.getContext('2d');
+    canvasCtx.canvas.width = 1;
+    canvasCtx.canvas.height = 1;
+  }
+  
   function micCallback(ev) {
     console.log(ev);
     if('error' in ev) {

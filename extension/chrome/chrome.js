@@ -2,7 +2,7 @@ var chirpAudio = null;
 var piupiu = null;
 var chirp = null;
 
-if(!chrome) chrome = {};
+if(typeof chrome == 'undefined' || chrome == null) chrome = {};
 
 function showError(err, u, l) {
   document.body.innerText = '';

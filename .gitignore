@@ -2,3 +2,7 @@ startssl.key
 startssl_unprotected.key
 
 requirejs/
+
+extension/safari/CertificateSigningRequest.certSigningRequest
+
+extension/safari/safari_extension.cer
