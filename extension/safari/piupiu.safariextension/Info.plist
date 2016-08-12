@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Author</key>
+	<string>Michael Barchy</string>
+	<key>Builder Version</key>
+	<string>12602.1.50</string>
+	<key>CFBundleDisplayName</key>
+	<string>piupiu - Share with sound</string>
+	<key>CFBundleIdentifier</key>
+	<string>ml.piupiu.extension.chrome</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleShortVersionString</key>
+	<string>0.1</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>Chrome</key>
+	<dict>
+		<key>Context Menu Items</key>
+		<array>
+			<dict>
+				<key>Command</key>
+				<string>piupiuShare</string>
+				<key>Identifier</key>
+				<string>piupiuMenu</string>
+				<key>Title</key>
+				<string>piupiu - Share with sound</string>
+			</dict>
+		</array>
+		<key>Global Page</key>
+		<string>background.html</string>
+		<key>Popovers</key>
+		<array>
+			<dict>
+				<key>Filename</key>
+				<string>popup.html</string>
+				<key>Height</key>
+				<integer>500</integer>
+				<key>Identifier</key>
+				<string>piupiuPopup</string>
+				<key>Width</key>
+				<integer>305</integer>
+			</dict>
+		</array>
+		<key>Toolbar Items</key>
+		<array>
+			<dict>
+				<key>Identifier</key>
+				<string>piupiuButton</string>
+				<key>Image</key>
+				<string>icon.png</string>
+				<key>Include By Default</key>
+				<true/>
+				<key>Label</key>
+				<string>piupiu - Share with sound</string>
+				<key>Palette Label</key>
+				<string>piupiu - Share with sound</string>
+				<key>Popover</key>
+				<string>piupiuPopup</string>
+				<key>Tool Tip</key>
+				<string>piupiu - Share with sound</string>
+			</dict>
+		</array>
+	</dict>
+	<key>Content</key>
+	<dict>
+		<key>Scripts</key>
+		<dict>
+			<key>End</key>
+			<array>
+				<string>inject.js</string>
+			</array>
+		</dict>
+	</dict>
+	<key>Description</key>
+	<string>Send text, pictures or links using sound waves! (Chirp compatible)</string>
+	<key>DeveloperIdentifier</key>
+	<string>JETPMQ8F25</string>
+	<key>ExtensionInfoDictionaryVersion</key>
+	<string>1.0</string>
+	<key>Permissions</key>
+	<dict>
+		<key>Website Access</key>
+		<dict>
+			<key>Include Secure Pages</key>
+			<true/>
+			<key>Level</key>
+			<string>All</string>
+		</dict>
+	</dict>
+	<key>Website</key>
+	<string>http://piupiu.ml</string>
+</dict>
+</plist>

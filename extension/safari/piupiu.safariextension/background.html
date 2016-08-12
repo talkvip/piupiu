@@ -1,0 +1,66 @@
+<html>
+  <script>
+    
+    var chrome = {
+      tabs: {
+        query: function(obj, callback) {
+          console.log(safari.application.activeBrowserWindow.activeTab.url);
+          callback([{url: safari.application.activeBrowserWindow.activeTab.url,
+            title: safari.application.activeBrowserWindow.activeTab.title}]);
+        },
+        
+        create: function(obj) {
+          var tab = safari.application.activeBrowserWindow.openTab();
+          var url = obj.url;
+          if(url.indexOf('http://') != 0 && url.indexOf('https://') != 0) url = safari.extension.baseURI + url;
+          tab.url = url;
+        }
+      }
+    }
+    
+    safari.application.addEventListener('contextmenu', handleContextMenu, false);
+    safari.application.addEventListener('validate', validateContextMenu, false);
+    safari.application.addEventListener('command', handleCommand, false);
+ 
+    function handleContextMenu(event) {
+      console.log(event);
+    }
+
+    function validateContextMenu(event) {
+      console.log(event);
+      if('userInfo' in event) {
+        var info = event.userInfo;
+        if(typeof info != 'object' || info == null) info = {};
+        if('nodeName' in info) {
+          if(info.nodeName == 'IMG') event.target.title = 'piupiu - Share Image';
+          if(info.nodeName == 'A') event.target.title = 'piupiu - Share link URL';
+          if(info.nodeName == 'FRAME' || info.nodeName == 'IFRAME') event.target.title = 'piupiu - Share frame URL';
+        }
+      }
+    }
+    
+    function handleCommand(event) {
+      console.log(event);
+      if(event.command == 'piupiuShare') {
+        if('userInfo' in event) {
+          var info = event.userInfo;
+          if(typeof info != 'object' || info == null) info = {};
+          if('nodeName' in info) {
+            safari.extension.toolbarItems[0].showPopover();
+            setTimeout(function() {
+              safari.extension.popovers[0].contentWindow.newChirpLoad(info);
+            }, 500);
+          } else {
+            safari.extension.toolbarItems[0].showPopover();
+            setTimeout(function() {
+              safari.extension.popovers[0].contentWindow.newChirpLoad({url: safari.application.activeBrowserWindow.activeTab.url,
+                title: safari.application.activeBrowserWindow.activeTab.title});
+            }, 500);
+          }
+        }      
+      }
+    }
+
+    
+  </script>
+</html>

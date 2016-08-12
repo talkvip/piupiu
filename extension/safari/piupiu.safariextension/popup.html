@@ -1,0 +1,26 @@
+<html>
+<head>
+  <title>piupiu</title>
+  <meta name="viewport" content="width=device-width, user-scalable=no" />
+  <link content="text/css" href="piupiu.css" rel="stylesheet" />
+  <link content="text/css" href="chrome.css" rel="stylesheet" />
+  <script type="text/javascript" src="JSON-js/json2.js"></script>
+  <script type="text/javascript" src="audio.js"></script>
+  <!--script type="text/javascript" src="microphone.js"></script-->
+  <script type="text/javascript" src="piupiu.js"></script>
+  <script type="text/javascript" src="chirp.js"></script>
+  <script type="text/javascript" src="safari.js"></script>
+</head>
+<body onfocus="history.go(0); /* safari bug */">
+  <div id="console"></div>
+  <div id="cards"></div>
+  <div id="header">&lt; piupiu.ml &gt;<font id="debug"><canvas id="wave"></canvas></font></div>
+  <div id="footer"><div id="chirp-url" class="chrome-menu">Share current URL</div></div>
+  <div id="confirm-del" class="confirm" style="display: none;">
+    <font id="del-message">Remove this chirp?</font><br /><br />
+    <div id="confirm-del-btn" class="btn red" style="float: left; width: 45%;">Confirm</div>
+    <div id="confirm-del-cancel" class="btn" style="float: right; width: 45%;">Cancel</div>
+  <div>
+  <form id="upload-form" method="post" action="https://lut.im" enctype="multipart/form-data" target="_blank"><input type="file" name="file" id="upload-file" /></form>
+</body>
+</html>
