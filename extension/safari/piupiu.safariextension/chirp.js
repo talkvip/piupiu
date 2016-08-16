@@ -1,6 +1,20 @@
 /* chirp.js */
 
 var Chirps = {};
+var storage = null;
+try {
+  storage = window.localStorage;
+} catch(e) {
+  if(Components) { // firefox
+    var url = 'https://piupiu.ml';
+    var ios = Components.classes['@mozilla.org/network/io-service;1'].getService(Components.interfaces.nsIIOService);
+    var ssm = Components.classes['@mozilla.org/scriptsecuritymanager;1'].getService(Components.interfaces.nsIScriptSecurityManager);
+    var dsm = Components.classes['@mozilla.org/dom/storagemanager;1'].getService(Components.interfaces.nsIDOMStorageManager);
+    var uri = ios.newURI(url, '', null);
+    var principal = ssm.getCodebasePrincipal(uri);
+    storage = dsm.getLocalStorageForPrincipal(principal, '');
+  }
+}
 
 function Chirp_getResponse(data) {
   console.log(data);
@@ -14,7 +28,7 @@ function Chirp_getResponse(data) {
   if(('title' in data) && ('url' in data)) {
     var obj = {};
     if('longcode' in data) {
-      window.localStorage.setItem('$chirp-' + data.longcode, JSON.stringify(data));
+      storage.setItem('$chirp-' + data.longcode, JSON.stringify(data));
       if(chrome) {
         if('storage' in chrome) {
           if('sync' in chrome.storage) {
@@ -83,9 +97,9 @@ Chirp.prototype.play = function() {
 
 Chirp.prototype.load = function(callback) {
 
-  for(var i in window.localStorage) {
+  for(var i in storage) {
     if(i.substring(0, 7) == '$chirp-') {
-      var obj = JSON.parse(window.localStorage.getItem(i));
+      var obj = JSON.parse(storage.getItem(i));
       if(typeof obj == 'object') {
         if('url' in obj) {
           Chirps[obj.url] = new Chirp();
