@@ -327,11 +327,12 @@ var ChirpAudio = function(params) {
         if(typeof most[0] != 'undefined') {
           charBuffer2[i] = most[0];
         } else {
-          if(charBuffer[i][0] != 'undefined') charBuffer2[i] = charBuffer[i][0];
+          if(typeof charBuffer[i][0] != 'undefined') charBuffer2[i] = charBuffer[i][0];
         }
       } else {
-        if(charBuffer[i][0] != 'undefined') charBuffer2[i] = charBuffer[i][0];
+        if(typeof charBuffer[i][0] != 'undefined') charBuffer2[i] = charBuffer[i][0];
       }
+      if(typeof charBuffer2[i] == 'undefined') charBuffer2[i] = '';
       data += charBuffer2[i];
     }
     //console.log(charBuffer2);
