@@ -11,3 +11,6 @@
 [submodule "extension/safari/piupiu.safariextension/JSON-js"]
 	path = extension/safari/piupiu.safariextension/JSON-js
 	url = https://github.com/douglascrockford/JSON-js
+[submodule "extension/firefox/content/JSON-js"]
+	path = extension/firefox/content/JSON-js
+	url = https://github.com/douglascrockford/JSON-js

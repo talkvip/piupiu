@@ -3,7 +3,7 @@
 PIUPIU = function() {
 
   this.old_url = 'http://piupiu.ml/#';
-  this.url = 'http://piupiu.ml/?';
+  this.url = 'http://piupiu.ml/?'; // redirection not working with chirp - chirp does not work with https !!!
   this.shortenURL_Callback = null;
   this.shortenURL_Id = null;
   
@@ -86,10 +86,12 @@ PIUPIU = function() {
 	}
 	
 	this.shortenURL_getResult = function(r) {
+	  console.log(r);
 		if('shorturl' in r) {
 			var https = new String('https://');
 			if(r.shorturl.indexOf(https) == 0) r.shorturl = 'http://' + r.shorturl.substring(https.length);
-			r.shorturl = r.shorturl.replace('http://is.gd/', this.url);
+			if(r.shorturl.indexOf('http:') == 0) r.shorturl = r.shorturl.replace('http://is.gd/', this.url);
+			if(r.shorturl.indexOf('https:') == 0) r.shorturl = r.shorturl.replace('https://is.gd/', this.url);
 		}
 		this.shortenURL_Callback(r);
 		this.unloadScript(this.shortenURL_Id);

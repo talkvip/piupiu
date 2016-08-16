@@ -67,9 +67,9 @@ Chirp.prototype.create = function(data, callback) {
     this.data = data;
     Chirps[data.url] = this;
     data.callback = callback;
-    //console.log(data);
-    var script = 'https://piupiu.ml/chirp.php?data=' + encodeURIComponent(JSON.stringify(data)) + '&callback=Chirp_getResponse';
-    //console.log(script);
+    console.log(data);
+    var script = 'https://piupiu.ml/chirp.php?data=' + encodeURIComponent(JSON.stringify(data)) + '&refresh=' + new Date().getTime() + '&callback=Chirp_getResponse';
+    console.log(script);
     var jsonp = piupiu.loadScript(script);
     setTimeout(function() { piupiu.unloadScript(jsonp); }, 5000);
   } else {

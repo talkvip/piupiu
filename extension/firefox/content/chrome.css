@@ -1,0 +1,225 @@
+/* chrome.css */
+
+body {
+  margin: 0px;
+  width: 304px;
+  height: 500px;  
+  font-size: 10pt;
+  font-family: Helvetica, Arial, Sans;
+  overflow-x: hidden;
+}
+
+body.mic {
+  width: 500px;
+  height: 100px;
+}
+
+#debug {
+  display: inline-block;
+  line-height: 25px;
+  float: right;
+}
+
+#wave {
+  float: right;
+}
+
+.chrome-menu, .card, .card-content {
+  box-sizing: border-box;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: default;
+  -webkit-user-select: none;
+}
+
+.chrome-menu {
+  text-align: center;
+}
+
+.loading {
+  background-image: url(loading.gif);
+  background-repeat: no-repeat;
+  background-position: center center;
+  color: rgba(0, 0, 0, .0);
+}
+
+.chrome-menu:hover, .card:hover {
+  background-color: rgba(0, 0, 0, .1);
+}
+
+.card {
+  display: block;
+  font-weight: bold;
+	background-image: url(close.png);
+	background-repeat: no-repeat;
+	background-position: right top;
+	padding-left: 24px;
+	padding-right: 24px;
+	overflow: hidden;
+	overflow-x: hidden;
+  white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.card-open {
+  height: auto;
+	background-image: url(open.png);
+	overflow-y: visible;
+  white-space: normal;
+	text-overflow: initial;
+}
+
+.card-content {
+  font-weight: normal !important;
+	border: solid 2px rgba(0, 0, 0, .1);
+  white-space: normal;
+	text-overflow: initial;
+}
+
+.card-content:hover {
+  background-color: rgba(255, 255, 255, .5);
+}
+
+.card-content > img {
+  width: 100%;
+  border-radius: 4px;
+}
+
+#header {
+  position: fixed;
+  left: 0px;
+  top: 0px;  
+  width: 300px;
+  height: 24px;
+  line-height: 24px;
+  box-sizing: border-box;
+  margin: 2px;
+  font-size: 12pt;
+  padding-left: 24px;
+  background-color: rgba(0, 0, 0, .1);
+  background-image: url(icon_16.png);
+  background-repeat: no-repeat;
+  background-position: left 4px center;
+  border-radius: 4px;
+}
+
+#cards {
+  position: absolute;
+  left: 0px;
+  top: 28px;
+  width: 305px;
+  height: 420px;
+  box-sizing: border-box;
+  padding: 4px;
+  /*padding-top: 28px;*/
+  /*padding-bottom: 32px;*/
+  overflow: scroll;
+}
+
+#footer {
+  position: fixed;
+  left: 0px;
+  bottom: 0;
+  width: 300px;
+  height: 44px;
+  box-sizing: border-box;
+  margin: 2px;
+  padding: 4px;
+  background-color: rgba(0, 0, 0, .1);
+  border-radius: 4px;
+}
+
+.chirp-button {
+  margin-top: 10px;
+  color: white;
+  width: 100%;
+  height: 30px;
+  background-color: #D0CB2F;
+  background-image: url(chirp.gif);
+  background-repeat: no-repeat;
+  background-position: center center;  
+  border-radius: 4px;
+  cursor: default;
+}
+
+.chirp-button:hover {
+  background-color: #E0DA27;
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, .5);
+}
+
+.del {
+  float: left;
+  margin-left: -20px;
+  width: 16px;
+  height: 16px;
+  background-image: url(del.png);
+  background-repeat: no-repeat;
+  background-position: left center;
+}
+
+.confirm {
+  position: absolute;
+  box-sizing: border-box;
+  background-color: white;
+  border: solid 1px #eeeeee;
+  border-radius: 4px;
+  box-shadow: 0px 0px 15px 5px rgba(0, 0, 0, .2);
+  left: 50%;
+  padding: 15px;
+  margin-left: -40%;
+  width: 80%;
+  top: 50px;
+}
+
+.btn {
+  box-sizing: border-box;
+  margin: 4px;
+  padding: 4px;
+  padding-left: 16px;
+  padding-right: 16px;
+  color: black;
+  background-color: #dddddd;
+  text-align: center;
+  border-radius: 2px;
+  box-shadow: 1px 1px 1px #cccccc;
+  cursor: default;
+}
+
+.btn:hover {
+  background-color: #eeeeee;
+  box-shadow: 2px 2px 1px #cccccc;
+}
+
+.red {
+  color: white;
+  background-color: #cc0000;
+}
+
+.red:hover {
+  color: white;
+  background-color: red;
+}
+
+#upload-form {
+  opacity: 0;
+  position: absolute;
+  left: 100%;
+  top: -100%;
+}
+
+.pulse {
+  animation: pulse .25s ease-in-out;
+  animation-iteration-count: 2;
+}
+
+@-webkit-keyframes pulse {
+  0% {-webkit-transform: scale(0.95, 0.95);}
+  50% {-webkit-transform: scale(1.05, 1.05);}
+  100% {-webkit-transform: scale(1.0, 1.0);}
+}
+
+@-moz-keyframes pulse {
+  0% {-moz-transform: scale(0.95, 0.95);}
+  50% {-moz-transform: scale(1.05, 1.05);}
+  100% {-moz-transform: scale(1.0, 1.0);}
+}

@@ -2,7 +2,23 @@ var chirpAudio = null;
 var piupiu = null;
 var chirp = null;
 
-if(typeof chrome == 'undefined' || chrome == null) chrome = {};
+var chrome = {
+  tabs: {
+    query: function(obj, callback) {
+      var wm = Components.classes['@mozilla.org/appshell/window-mediator;1'].getService(Components.interfaces.nsIWindowMediator);
+      var recentWindow = wm.getMostRecentWindow('navigator:browser');
+      
+      console.log(recentWindow.location);
+      callback([{url: recentWindow.content.document.location,
+        title: recentWindow.content.document.title}]);
+    },
+    
+    create: function(obj) {
+      var url = obj.url;
+      window.open(url);
+    }
+  }
+}
 
 function showError(err, u, l) {
   document.body.innerText = '';
@@ -12,6 +28,7 @@ function showError(err, u, l) {
   div.innerText = u.substring(u.lastIndexOf('/') + 1) + '[' + l + '] ' + err;
   document.body.appendChild(div);
 }
+
 
 window.addEventListener('load', function(event) {
 
@@ -230,7 +247,7 @@ window.addEventListener('load', function(event) {
 	if(chrome.i18n) document.getElementById('confirm-del-btn').innerText = chrome.i18n.getMessage('confirm');
 	document.getElementById('confirm-del-btn').addEventListener('click', function(event) {
 	  if(event.target.getAttribute('longcode') == '') return;
-    localStorage.removeItem('$chirp-' + event.target.getAttribute('longcode'));
+    storage.removeItem('$chirp-' + event.target.getAttribute('longcode'));
     try { chrome.storage.sync.remove('$chirp-' + event.target.getAttribute('longcode'), function() {}); } catch(e) { console.log(e); }
     event.target.setAttribute('longcode', '');
     document.getElementById('confirm-del').style.display = 'none';
@@ -393,11 +410,13 @@ function newChirpClose(data) {
 	//console.log(data);
 	if('error' in data) {
     showError(data.error.msg + '(Invalid URL?)', 'newChirpClose', 0);
-		window.close();
+    location = 'popup.html';
+		//window.close();
 	} else {
 		data.obj.play();
 		setTimeout(function() {
-		  window.close();
+      location = 'popup.html';
+		  //window.close();
 		}, 4000);
 	}
 }
